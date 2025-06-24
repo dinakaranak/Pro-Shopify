@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import Api from '../../Services/Api';
 
 const SignUp = ({ setIsAuthenticated }) => {
   const [formData, setFormData] = useState({
@@ -52,7 +52,7 @@ const SignUp = ({ setIsAuthenticated }) => {
 
     setIsLoading(true);
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/signup', {
+      const response = await Api.post('/auth/signup', {
         email: formData.email,
         password: formData.password
       });
