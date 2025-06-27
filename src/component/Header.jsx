@@ -10,7 +10,6 @@ import { MdOutlineShoppingCart } from "react-icons/md";
 import { IoGitCompareOutline } from "react-icons/io5";
 import { FaRegHeart } from "react-icons/fa6";
 import Tooltip from '@mui/material/Tooltip';
-import Navigation from './Navigation'
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
     '& .MuiBadge-badge': {
@@ -98,8 +97,6 @@ const Header = () => {
                     </div>
                 </div>
             </div>
-
-            <Navigation />
         </header>
     )
 }
