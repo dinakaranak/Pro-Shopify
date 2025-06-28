@@ -61,7 +61,7 @@ const Header = () => {
                     <div className='col3 w-[30%] flex items-center pl-7'>
                         <ul className='flex items-center justify-end gap-3 w-full'>
                             <li className='list-none'>
-                                <Button variant="contained" onClick={handleLoginClick} className='text-[12px]'>Login</Button>
+                                <Button  variant="contained"  color="secondary" onClick={handleLoginClick} className='text-[14px] font-600'>Login</Button>
                                 {/* <Link to='/login' className='link transition text-[15px] font-[500]'>Login</Link> */}
                                 {/* | <Link to='/signup' className='link transition text-[15px] font-[500]'>SignUp</Link> */}
                             </li>

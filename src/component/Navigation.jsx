@@ -1,16 +1,17 @@
 import Button from '@mui/material/Button'
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { RiMenu2Fill } from "react-icons/ri";
 import { LiaAngleDownSolid } from "react-icons/lia";
 import { Link } from 'react-router-dom';
 import { GoRocket } from "react-icons/go";
 import Category from './Category';
 import '../component/search.css'
+import { ProductContext } from '../context/ProductDetail';
 
 const Navigation = () => {
 
     const [isOpenCatPanel, setIsOpenCatPanel] = useState(false);
-
+    const {product} =useContext(ProductContext)
     const Categories =() =>{
         setIsOpenCatPanel(true);
     };
@@ -41,7 +42,7 @@ const Navigation = () => {
                         shadow-md opacity-0  transition-all'>
                             <ul>
                                 <li className='list-none w-full relative group/submenu'>
-                                    <Link to='/' className='w-full'>
+                                    <Link to = {`/category/MENSWEAR`} className='w-full'>
                                     <Button className='!text-[rgba(0,0,0,0.8)]  w-full !text-left
                                      !justify-start !rounded-none'>Men</Button>
 

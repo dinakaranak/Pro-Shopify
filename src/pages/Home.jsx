@@ -6,6 +6,7 @@ import Footer from '../component/Footer'
 import SubBanner from '../component/HomePage/SubBanner'
 import Division from '../component/HomePage/Division'
 import Navigation from '../component/Navigation'
+import ProductsList from '../component/products/ProductsList'
 
 const Home = () => {
   return (
@@ -24,6 +25,7 @@ const Home = () => {
       </div>
     </div>
       <Division />
+      <ProductsList />
       <Features />
       <Footer />
     </div>
