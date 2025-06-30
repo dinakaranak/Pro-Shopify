@@ -10,6 +10,7 @@ import ProductPage from './component/products/ProductPage'
 import CategoryProduct from './component/products/CategoryProduct'
 import ScrollToTop from './component/ScrollToTop'
 import CartPage from './component/products/CartPage'
+import PurchaseProduct from './component/products/PurchaseProduct'
 
 function App() {
 const [isAuthenticated, setIsAuthenticated]=useState()
@@ -27,6 +28,7 @@ const [isAuthenticated, setIsAuthenticated]=useState()
       <Route path="/productpage/:id" element={<ProductPage />} ></Route>
         <Route path='/category/:category' element={<CategoryProduct />}></Route>
         <Route path='/addtocart' element={<CartPage />}></Route>
+        <Route path='/purchaseproduct' element={<PurchaseProduct />}></Route>
 
 
       </Routes>

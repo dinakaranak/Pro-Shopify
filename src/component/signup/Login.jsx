@@ -48,6 +48,7 @@ const Login = ({ setIsAuthenticated }) => {
                 email: formData.email,
                 password: formData.password
             });
+             localStorage.setItem('token', response.data.token);
 
             if (response.data.success) {
                 setIsAuthenticated(true);
