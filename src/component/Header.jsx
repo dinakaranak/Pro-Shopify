@@ -69,7 +69,7 @@ const Header = () => {
                         <Button 
                             fullWidth 
                             variant="contained" 
-                            color="secondary" 
+                            color="error" 
                             onClick={handleLogout}
                         >
                             Logout
@@ -78,7 +78,7 @@ const Header = () => {
                         <Button 
                             fullWidth 
                             variant="contained" 
-                            color="secondary" 
+                            color="error" 
                             onClick={handleLoginClick}
                         >
                             Login
@@ -99,17 +99,17 @@ const Header = () => {
             <Divider />
             <div className="flex justify-around p-4">
                 <IconButton component={Link} to="/compare">
-                    <StyledBadge badgeContent={4} color="secondary">
+                    <StyledBadge badgeContent={4} color="error">
                         <IoGitCompareOutline />
                     </StyledBadge>
                 </IconButton>
                 <IconButton component={Link} to="/wishlist">
-                    <StyledBadge badgeContent={4} color="secondary">
+                    <StyledBadge badgeContent={4} color="error">
                         <FaRegHeart />
                     </StyledBadge>
                 </IconButton>
                 <IconButton component={Link} to="/addtocart">
-                    <StyledBadge badgeContent={cartCount} color="secondary">
+                    <StyledBadge badgeContent={cartCount} color="error">
                         <MdOutlineShoppingCart />
                     </StyledBadge>
                 </IconButton>
@@ -129,10 +129,10 @@ const Header = () => {
                             </p>
                         </div>
                         <div className='hidden md:flex items-center justify-end space-x-4'>
-                            <Link to='/help-center' className='text-xs md:text-sm font-medium text-gray-600 hover:text-purple-600 transition'>
+                            <Link to='/help-center' className='text-xs md:text-sm font-medium text-gray-600 hover:text-[#d10024] transition'>
                                 Help Center
                             </Link>
-                            <Link to='/order-tracking' className='text-xs md:text-sm font-medium text-gray-600 hover:text-purple-600 transition'>
+                            <Link to='/order-tracking' className='text-xs md:text-sm font-medium text-gray-600 hover:text-[#d10024] transition'>
                                 Order Tracking
                             </Link>
                         </div>
@@ -174,7 +174,7 @@ const Header = () => {
                                     {isLoggedIn ? (
                                         <Button 
                                             variant="contained" 
-                                            color="secondary" 
+                                            color="error" 
                                             onClick={handleLogout}
                                             size="small"
                                             className='hidden md:block'
@@ -184,7 +184,7 @@ const Header = () => {
                                     ) : (
                                         <Button 
                                             variant="contained" 
-                                            color="secondary" 
+                                            color="error" 
                                             onClick={handleLoginClick}
                                             size="small"
                                             className='hidden md:block'
@@ -201,7 +201,7 @@ const Header = () => {
                                     component={Link}
                                     to="/compare"
                                 >
-                                    <StyledBadge badgeContent={4} color="secondary">
+                                    <StyledBadge badgeContent={4} color="error">
                                         <IoGitCompareOutline className="text-[25px]" />
                                     </StyledBadge>
                                 </IconButton>
@@ -213,7 +213,7 @@ const Header = () => {
                                     component={Link}
                                     to="/wishlist"
                                 >
-                                    <StyledBadge badgeContent={4} color="secondary">
+                                    <StyledBadge badgeContent={4} color="error">
                                         <FaRegHeart className="text-[25px]" />
                                     </StyledBadge>
                                 </IconButton>
@@ -225,7 +225,7 @@ const Header = () => {
                                     component={Link}
                                     to="/addtocart"
                                 >
-                                    <StyledBadge badgeContent={cartCount} color="secondary">
+                                    <StyledBadge badgeContent={cartCount} color="error">
                                         <MdOutlineShoppingCart className="text-[25px]" />
                                     </StyledBadge>
                                 </IconButton>

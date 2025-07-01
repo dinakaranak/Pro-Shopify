@@ -5,6 +5,9 @@ import Api from '../../Services/Api';
 import { FiShoppingBag, FiTrash2, FiPlus, FiMinus } from 'react-icons/fi';
 import { MdOutlineRemoveShoppingCart } from 'react-icons/md';
 import { motion } from 'framer-motion';
+import Header from '../Header';
+import Navigation from '../Navigation';
+import Footer from '../Footer';
 
 const CartPage = () => {
   const [cart, setCart] = useState({ items: [] });
@@ -12,31 +15,31 @@ const CartPage = () => {
   const [updatingItems, setUpdatingItems] = useState({});
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchCart = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          navigate('/login', { state: { from: '/cart' } });
-          return;
-        }
-
-        const response = await Api.get('/cart', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        setCart(response.data || { items: [] });
-      } catch (error) {
-        console.error('Error fetching cart:', error);
-        if (error.response?.status === 401) {
-          navigate('/login', { state: { from: '/cart' } });
-        }
-      } finally {
-        setLoading(false);
+  const fetchCart = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login', { state: { from: '/cart' } });
+        return;
       }
-    };
 
+      const response = await Api.get('/cart', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      setCart(response.data || { items: [] });
+    } catch (error) {
+      console.error('Error fetching cart:', error);
+      if (error.response?.status === 401) {
+        navigate('/login', { state: { from: '/cart' } });
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchCart();
   }, [navigate]);
 
@@ -53,7 +56,14 @@ const CartPage = () => {
           Authorization: `Bearer ${token}`
         }
       });
-      setCart(response.data);
+      
+      // Update the specific item's quantity in the state
+      setCart(prevCart => ({
+        ...prevCart,
+        items: prevCart.items.map(item => 
+          item._id === itemId ? { ...item, quantity: newQuantity } : item
+        )
+      }));
       toast.success('Quantity updated');
     } catch (error) {
       console.error('Error updating quantity:', error);
@@ -67,20 +77,30 @@ const CartPage = () => {
     try {
       setUpdatingItems(prev => ({ ...prev, [itemId]: true }));
       const token = localStorage.getItem('token');
-      const response = await Api.delete(`/cart/${itemId}`, {
+        console.log('Deleting item with ID:', itemId);
+      await Api.delete(`/cart/${itemId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
-      setCart(response.data);
-      toast.success('Item removed from cart');
-    } catch (error) {
-      console.error('Error removing item:', error);
-      toast.error(error.response?.data?.message || 'Failed to remove item');
-    } finally {
-      setUpdatingItems(prev => ({ ...prev, [itemId]: false }));
-    }
-  };
+      
+      // Remove the item from state immediately
+       setCart(prevCart => {
+      const updatedItems = prevCart.items.filter(item => item._id !== itemId);
+      console.log('Updated items after deletion:', updatedItems);
+      return { ...prevCart, items: updatedItems };
+    });
+    
+    toast.success('Item removed from cart');
+  } catch (error) {
+    console.error('Error removing item:', error);
+    toast.error(error.response?.data?.message || 'Failed to remove item');
+
+    fetchCart();
+  } finally {
+    setUpdatingItems(prev => ({ ...prev, [itemId]: false }));
+  }
+};
 
   const clearCart = async () => {
     try {
@@ -90,6 +110,7 @@ const CartPage = () => {
           Authorization: `Bearer ${token}`
         }
       });
+      // Clear the cart in state immediately
       setCart({ items: [] });
       toast.success('Cart cleared');
     } catch (error) {
@@ -103,11 +124,11 @@ const CartPage = () => {
     0
   );
 
-  // Loading skeleton
-  if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">Your Shopping Cart</h1>
+if (loading) {
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+          <h1 className="text-2xl font-bold mb-6">Your Shopping Cart</h1>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-2 space-y-4">
             {[1, 2, 3].map((i) => (
@@ -151,6 +172,9 @@ const CartPage = () => {
   }
 
   return (
+    <>
+    <Header />
+    <Navigation />
     <div className="container mx-auto px-4 py-8">
       <motion.h1 
         initial={{ opacity: 0, y: -20 }}
@@ -174,7 +198,7 @@ const CartPage = () => {
             Looks like you haven't added anything to your cart yet. Start shopping to find amazing products!
           </p>
           <Link 
-            to="/products" 
+            to="/" 
             className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition-colors font-medium inline-flex items-center gap-2"
           >
             Start Shopping
@@ -206,10 +230,10 @@ const CartPage = () => {
                     </Link>
                     
                     <div className="flex-1">
-                      <div className="flex justify-between items-start">
+                     <div className="flex justify-between items-start">
                         <Link 
                           to={`/productpage/${item.productId?._id}`} 
-                          className="font-medium text-lg hover:text-purple-600 line-clamp-2"
+                          className="font-medium text-lg hover:text-purple-600 line-clamp-1"
                         >
                           {item.productId?.name}
                         </Link>
@@ -227,6 +251,7 @@ const CartPage = () => {
                         {item.size && <span className="ml-2">Size: {item.size}</span>}
                       </div>
                       
+                      {/* Price display */}
                       <div className="mt-3 flex items-center flex-wrap gap-2">
                         {item.productId?.discountPrice ? (
                           <>
@@ -243,6 +268,7 @@ const CartPage = () => {
                         )}
                       </div>
                       
+                      {/* Quantity controls */}
                       <div className="mt-4 flex items-center gap-4">
                         <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
                           <button 
@@ -265,7 +291,10 @@ const CartPage = () => {
                         </div>
                         
                         <div className="text-gray-700 font-medium">
-                          ₹{(item.productId?.discountPrice || item.productId?.originalPrice || 0) * item.quantity}
+                          ₹{(
+                            (item.productId?.discountPrice || item.productId?.originalPrice || 0) * 
+                            item.quantity
+                          ).toLocaleString()}
                         </div>
                       </div>
                     </div>
@@ -318,15 +347,15 @@ const CartPage = () => {
               </div>
               
               <button 
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg transition-colors font-medium mb-4"
+                className="w-full bg-[#d10024] hover:bg-[#b10024] text-white py-3 rounded-lg transition-colors font-medium mb-4"
                 onClick={() => navigate('/checkout')}
               >
                 Proceed to Checkout
               </button>
               
               <Link 
-                to="/products" 
-                className="block text-center text-purple-600 hover:underline font-medium"
+                to="/" 
+                className="block text-center text-[#d10024] hover:underline font-medium"
               >
                 Continue Shopping
               </Link>
@@ -345,6 +374,8 @@ const CartPage = () => {
         </div>
       )}
     </div>
+    <Footer />
+    </>
   );
 };
 

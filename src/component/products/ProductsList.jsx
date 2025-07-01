@@ -8,7 +8,8 @@ const ProductCard = ({ product }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+
   const nextImage = () => {
     setCurrentImageIndex((prevIndex) => 
       (prevIndex + 1) % product.images.length
@@ -29,147 +30,164 @@ const ProductCard = ({ product }) => {
     e.stopPropagation();
     setIsFavorite(!isFavorite);
   };
-const handleClick = () => {
+
+  const handleClick = () => {
     navigate(`/productpage/${product._id}`);
   };
+
+  const handleAddToCart = (e) => {
+    e.stopPropagation();
+    handleClick()
+  };
+
   return (
     <motion.div 
-      className="border rounded-lg p-4 hover:shadow-lg transition-shadow bg-white"
+      className="border rounded-lg p-4 hover:shadow-lg transition-shadow bg-white flex flex-col h-full"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       whileHover={{ y: -5 }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
-     onClick={handleClick}
+      onClick={handleClick}
     >
-      <div className="flex justify-between items-start">
-        <h2 className="text-lg font-semibold line-clamp-1">
-          {product.name} ({product.colors})
-        </h2>
-        <div className="flex items-center gap-2">
-          <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
-            Assured
-          </span>
-          <button 
-            onClick={toggleFavorite}
-            className="text-gray-400 hover:text-red-500 transition-colors"
-            aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
-          >
-            {isFavorite ? <FaHeart className="text-red-500" /> : <FaRegHeart />}
-          </button>
-        </div>
-      </div>
-      
-      {/* Rating */}
-      <div className="flex items-center mt-2">
-        <div className="flex items-center bg-blue-50 px-2 py-1 rounded">
-          <span className="text-yellow-500 mr-1">{product.rating || 4.2}</span>
-          <FaStar className="text-yellow-500 text-xs" />
-        </div>
-        <span className="text-gray-500 text-sm ml-2">({product.reviews || 124} reviews)</span>
-      </div>
-      
-      {/* Image Carousel */}
-      <div className="relative mt-4 overflow-hidden rounded-lg">
-        <div className="relative h-48 w-full bg-gray-100">
-          {product.images.map((image, index) => (
-            <motion.img
-              key={index}
-              src={image}
-              alt={`${product.name} - ${index + 1}`}
-              className={`absolute h-[200px] w-full object-cover transition-opacity duration-300 ${
-                index === currentImageIndex ? 'opacity-100' : 'opacity-0'
-              }`}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: index === currentImageIndex ? 1 : 0 }}
-              transition={{ duration: 0.5 }}
-            />
-          ))}
+      {/* Top Section */}
+      <div className="flex-grow">
+        <div className="flex justify-between items-start">
+          <h2 className="text-lg font-semibold line-clamp-1">
+            {product.name} ({product.colors})
+          </h2>
+          <div className="flex items-center gap-2">
+            <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
+              Assured
+            </span>
+            <button 
+              onClick={toggleFavorite}
+              className="text-gray-400 hover:text-red-500 transition-colors"
+              aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+            >
+              {isFavorite ? <FaHeart className="text-red-500" /> : <FaRegHeart />}
+            </button>
+          </div>
         </div>
         
-        {/* Navigation Arrows - Only show if hovered and multiple images */}
-        {product.images.length > 1 && isHovered && (
-          <>
-            <motion.button
-              onClick={(e) => {
-                e.stopPropagation();
-                prevImage();
-              }}
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white text-gray-800 p-2 rounded-full shadow-md hover:bg-gray-100"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              aria-label="Previous image"
-            >
-              <FaChevronLeft className="text-sm" />
-            </motion.button>
-            <motion.button
-              onClick={(e) => {
-                e.stopPropagation();
-                nextImage();
-              }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white text-gray-800 p-2 rounded-full shadow-md hover:bg-gray-100"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              aria-label="Next image"
-            >
-              <FaChevronRight className="text-sm" />
-            </motion.button>
-          </>
-        )}
-        
-        {/* Dots Indicator */}
-        {product.images.length > 1 && (
-          <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1">
-            {product.images.map((_, index) => (
-              <button
+        {/* Image Carousel */}
+        <div className="relative mt-4 overflow-hidden rounded-lg">
+          <div className="relative h-48 w-full bg-gray-100">
+            {product.images.map((image, index) => (
+              <motion.img
                 key={index}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  goToImage(index);
-                }}
-                className={`w-2 h-2 rounded-full transition-all ${
-                  index === currentImageIndex 
-                    ? 'bg-black w-3' 
-                    : 'bg-gray-300'
+                src={image}
+                alt={`${product.name} - ${index + 1}`}
+                className={`absolute h-[200px] w-full object-cover transition-opacity duration-300 ${
+                  index === currentImageIndex ? 'opacity-100' : 'opacity-0'
                 }`}
-                aria-label={`Go to image ${index + 1}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: index === currentImageIndex ? 1 : 0 }}
+                transition={{ duration: 0.5 }}
               />
             ))}
           </div>
-        )}
-      </div>
-      
-      <div className="mt-4">
-        <div className="flex items-center">
-          <span className="text-lg font-bold">₹{product.discountPrice.toLocaleString()}</span>
-          <span className="text-gray-500 line-through text-sm ml-2">₹{product.originalPrice.toLocaleString()}</span>
-          <span className="text-green-600 text-sm font-medium ml-2">{product.discountPercent}% off</span>
+          
+          {/* Navigation Arrows - Only show if hovered and multiple images */}
+          {product.images.length > 1 && isHovered && (
+            <>
+              <motion.button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  prevImage();
+                }}
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white text-gray-800 p-2 rounded-full shadow-md hover:bg-gray-100"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                aria-label="Previous image"
+              >
+                <FaChevronLeft className="text-sm" />
+              </motion.button>
+              <motion.button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  nextImage();
+                }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white text-gray-800 p-2 rounded-full shadow-md hover:bg-gray-100"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                aria-label="Next image"
+              >
+                <FaChevronRight className="text-sm" />
+              </motion.button>
+            </>
+          )}
+          
+          {/* Dots Indicator */}
+          {product.images.length > 1 && (
+            <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1">
+              {product.images.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    goToImage(index);
+                  }}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    index === currentImageIndex 
+                      ? 'bg-black w-3' 
+                      : 'bg-gray-300'
+                  }`}
+                  aria-label={`Go to image ${index + 1}`}
+                />
+              ))}
+            </div>
+          )}
         </div>
         
-        {product.offers && (
-          <div className="mt-2 text-xs text-green-700">
-            {product.offers.map((offer, i) => (
-              <div key={i} className="flex items-start mb-1">
-                <span className="mr-1">•</span>
-                <span>{offer}</span>
-              </div>
-            ))}
+        {/* Price and Offers */}
+        <div className="mt-4">
+          <div className="flex items-center">
+            <span className="text-lg font-bold">₹{product.discountPrice.toLocaleString()}</span>
+            <span className="text-gray-500 line-through text-sm ml-2">₹{product.originalPrice.toLocaleString()}</span>
+            <span className="text-green-600 text-sm font-medium ml-2">{product.discountPercent}% off</span>
           </div>
-        )}
-        
-        <div className="mt-4 flex justify-between">
-          <button className="text-sm text-purple-600 font-medium hover:underline">
-            View Details
-          </button>
-          <motion.button 
-            className="flex items-center gap-1 bg-purple-600 text-white px-3 py-1 rounded text-sm hover:bg-purple-700 transition-colors"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <FaShoppingCart className="text-xs" />
-            Add to Cart
-          </motion.button>
+          
+          {product.offers && (
+            <div className="mt-2 text-xs text-green-700">
+              {product.offers.map((offer, i) => (
+                <div key={i} className="flex items-start mb-1">
+                  <span className="mr-1">•</span>
+                  <span>{offer}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Bottom Buttons - Fixed at bottom */}
+      <div className="mt-auto pt-4 flex justify-between border-t border-gray-100">
+        {/* <button 
+          className="text-[12px] text-blue-600 font-medium hover:underline"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleClick();
+          }}
+        >
+          View Details
+        </button>
+        <motion.button 
+          className="flex items-center gap-1 bg-[#d10024] text-white px-3 py-1 rounded text-sm hover:bg-purple-700 transition-colors"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={handleAddToCart}
+        >
+          <FaShoppingCart className="text-[20px]" />
+        </motion.button> */}
+          {/* Rating */}
+        <div className="flex items-center mt-2">
+          <div className="flex items-center bg-blue-50 px-2 py-1 rounded">
+            <span className="text-yellow-500 mr-1">{product.rating || 4.2}</span>
+            <FaStar className="text-yellow-500 text-xs" />
+          </div>
+          <span className="text-gray-500 text-sm ml-2">({product.reviews || 124} reviews)</span>
         </div>
       </div>
     </motion.div>
@@ -305,7 +323,7 @@ const ProductList = () => {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3">
           {filteredProducts().map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}

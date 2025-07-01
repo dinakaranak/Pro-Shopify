@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Api from '../../Services/Api';
 import {
@@ -90,7 +90,7 @@ useEffect(() => {
         }),
         warranty: response.data.warranty || '1 Year Manufacturer Warranty',
         returnPolicy: response.data.returnPolicy || '30 Days Return Policy',
-        subcategory: response.data.subcategory || 'electronics',
+        category:response.data.category, 
         description: response.data.description || 'This premium product features high-quality materials and craftsmanship. Designed for comfort and durability, it offers excellent value for money. Perfect for everyday use or special occasions.'
       };
 
@@ -98,7 +98,7 @@ useEffect(() => {
       setSelectedColor(enhancedProduct.colors[0]);
       setSelectedSize(enhancedProduct.sizeChart[0]?.label || '');
 
-      fetchSimilarProducts(enhancedProduct.subcategory, id, enhancedProduct.name);
+      fetchSimilarProducts(enhancedProduct.category, id, enhancedProduct.name);
     } catch (err) {
       setError(err.message || 'Failed to fetch product');
     } finally {
@@ -106,12 +106,12 @@ useEffect(() => {
     }
   };
 
-  const fetchSimilarProducts = async (subcategory, currentProductId, currentProductName) => {
+  const fetchSimilarProducts = async (category, currentProductId, currentProductName) => {
     try {
       setSimilarLoading(true);
       const response = await Api.get('/products');
       const filteredProducts = response.data
-        .filter(p => p.subcategory === subcategory &&
+        .filter(p => p.category === category &&
           p.id !== currentProductId &&
           p.name !== currentProductName)
         .slice(0, 4)
@@ -202,7 +202,7 @@ return (
               <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                 <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"></path>
               </svg>
-              <Link to="/products" className="ml-1 text-sm font-medium text-gray-700 hover:text-purple-600 md:ml-2">
+              <Link to={`/category/${product.category}`} className="ml-1 text-sm font-medium text-gray-700 hover:text-purple-600 md:ml-2">
                 Products
               </Link>
             </div>
@@ -273,7 +273,7 @@ return (
                   key={index}
                   onClick={() => setCurrentImageIndex(index)}
                   className={`flex-shrink-0 h-16 w-16 border-2 rounded-md overflow-hidden transition-all ${index === currentImageIndex
-                    ? 'border-purple-500 scale-105 shadow-md'
+                    ? 'border-[#d10024] scale-105 shadow-md'
                     : 'border-gray-200 hover:border-gray-300'}`}
                 >
                   <img
@@ -310,7 +310,7 @@ return (
             <div className="flex flex-col sm:flex-row gap-3">
               <motion.button
                 onClick={handleAddToCart}
-                className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition-colors flex items-center justify-center gap-2 font-medium"
+                className="flex-1 bg-[#d10024] hover:bg-[#d10024] text-white px-6 py-3 rounded-lg transition-colors flex items-center justify-center gap-2 font-medium"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -320,7 +320,7 @@ return (
               
               <motion.button
                onClick={handleAddToCart}
-                className="flex-1 bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white px-6 py-3 rounded-lg transition-colors font-medium"
+                className="flex-1 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-500 hover:to-yellow-500 text-white px-6 py-3 rounded-lg transition-colors font-medium"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -394,7 +394,7 @@ return (
                   key={color}
                   onClick={() => setSelectedColor(color)}
                   className={`px-4 py-2 border rounded-full text-sm font-medium transition-all flex items-center gap-2 ${selectedColor === color
-                    ? 'border-purple-500 bg-purple-50 text-purple-700'
+                    ? 'border-[#d10024] bg-purple-50 text-[#d10024]'
                     : 'border-gray-200 hover:border-gray-300'}`}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -603,26 +603,26 @@ return (
 
         {similarLoading ? (
           <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-purple-600"></div>
+            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#d10024]"></div>
           </div>
         ) : similarProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className=" grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {similarProducts.map((item) => (
               <motion.div
                 key={item.id}
-                className="border rounded-xl overflow-hidden hover:shadow-md transition-shadow bg-white"
+                className="relative border rounded-xl overflow-hidden hover:shadow-md transition-shadow bg-white"
                 whileHover={{ y: -5 }}
                 transition={{ duration: 0.2 }}
               >
                 <Link to={`/productpage/${item._id}`} className="block">
-                  <div className="h-48 bg-gray-100 flex items-center justify-center p-4">
+                  <div className=" h-48 bg-gray-100 flex items-center justify-center p-4">
                     <img
                       src={item.images[0]}
                       alt={item.name}
                       className="h-full w-full object-contain"
                     />
                     {item.discountPercent > 0 && (
-                      <div className="absolute top-3 left-3 bg-purple-600 text-white text-xs font-bold px-2 py-1 rounded">
+                      <div className="absolute  top-3 left-3 bg-[#d10024] text-white text-xs font-bold px-2 py-1 rounded">
                         {item.discountPercent}% OFF
                       </div>
                     )}
