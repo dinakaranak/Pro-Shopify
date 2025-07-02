@@ -1,292 +1,286 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Api from '../../Services/Api';
 
-const SignUp = ({ setIsAuthenticated }) => {
-  const [formData, setFormData] = useState({
-    email: '',
-    confirmEmail: '',
-    password: '',
-    confirmPassword: ''
-  });
-  const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
+const SignUp = () => {
   const navigate = useNavigate();
+  const [step, setStep] = useState(1); // 1: Signup form, 2: OTP verification
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+  });
+  const [otp, setOtp] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value
+      [e.target.name]: e.target.value,
     });
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors({
-        ...errors,
-        [name]: null
-      });
-    }
-  };
-
-  const validate = () => {
-    const newErrors = {};
-    if (!formData.email.trim()) newErrors.email = 'Email is required';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Please enter a valid email';
-    
-    if (!formData.confirmEmail.trim()) newErrors.confirmEmail = 'Please confirm your email';
-    else if (formData.email !== formData.confirmEmail) newErrors.confirmEmail = 'Emails do not match';
-    
-    if (!formData.password) newErrors.password = 'Password is required';
-    else if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
-    
-    if (!formData.confirmPassword) newErrors.confirmPassword = 'Please confirm your password';
-    else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validate()) return;
+    setLoading(true);
+    setError('');
 
-    setIsLoading(true);
     try {
-      const response = await Api.post('/auth/signup', {
-        email: formData.email,
-        password: formData.password
-      });
-
-      if (response.data.success) {
-        setIsAuthenticated(true);
-        navigate('/dashboard'); // Redirect to dashboard or appropriate page after signup
+      if (step === 1) {
+        // Send signup request
+        const response = await Api.post('/auth/signup', formData);
+        setSuccess(response.data.message);
+        setStep(2);
+      } else {
+        // Verify OTP
+        const response = await Api.post('/auth/verify-email', {
+          email: formData.email,
+          otp,
+        });
+        
+        // Store token in localStorage
+        localStorage.setItem('token', response.data.token);
+        
+        // Redirect to dashboard or home page
+        navigate('/');
       }
-    } catch (error) {
-      console.error('Signup error:', error.response?.data?.message || error.message);
-      setErrors({ 
-        ...errors,
-        submit: error.response?.data?.message || 'Signup failed. Please try again.' 
-      });
+    } catch (err) {
+      setError(
+        err.response?.data?.message || 
+        err.message || 
+        'Something went wrong'
+      );
     } finally {
-      setIsLoading(false);
+      setLoading(false);
+    }
+  };
+
+  const resendOtp = async () => {
+    setLoading(true);
+    setError('');
+    
+    try {
+      const response = await Api.post('/auth/resend-otp', {
+        email: formData.email,
+      });
+      setSuccess(response.data.message);
+    } catch (err) {
+      setError(
+        err.response?.data?.message || 
+        err.message || 
+        'Failed to resend OTP'
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className=" inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="relative bg-white rounded-xl max-w-md w-full overflow-hidden shadow-2xl">
-        <button
-          onClick={() => navigate('/')}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200"
-          aria-label="Close"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-        
-        <div className="p-8">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-900">Create your account</h2>
-            <p className="mt-2 text-sm text-gray-600">
-              Already have an account?{' '}
-              <Link 
-                to="/login" 
-                className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors duration-200"
-              >
-                Sign in
-              </Link>
-            </p>
-          </div>
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          Create your account
+        </h2>
+      </div>
 
-          {errors.submit && (
-            <div className="mt-6 bg-red-50 border-l-4 border-red-500 p-4 rounded" role="alert">
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          {error && (
+            <div className="mb-4 bg-red-50 border-l-4 border-red-500 p-4">
               <div className="flex">
                 <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  <svg
+                    className="h-5 w-5 text-red-500"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm text-red-700">{errors.submit}</p>
+                  <p className="text-sm text-red-700">{error}</p>
                 </div>
               </div>
             </div>
           )}
 
-          <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
-              </label>
-              <div className="mt-1 relative rounded-md shadow-sm">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className={`block w-full px-4 py-3 rounded-md border ${errors.email ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500' : 'border-gray-300 placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500'} shadow-sm`}
-                  placeholder="you@example.com"
-                />
-                {errors.email && (
-                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                )}
+          {success && (
+            <div className="mb-4 bg-green-50 border-l-4 border-green-500 p-4">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <svg
+                    className="h-5 w-5 text-green-500"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm text-green-700">{success}</p>
+                </div>
               </div>
-              {errors.email && (
-                <p className="mt-2 text-sm text-red-600">{errors.email}</p>
-              )}
             </div>
+          )}
 
-            <div>
-              <label htmlFor="confirmEmail" className="block text-sm font-medium text-gray-700">
-                Confirm email address
-              </label>
-              <div className="mt-1 relative rounded-md shadow-sm">
-                <input
-                  id="confirmEmail"
-                  name="confirmEmail"
-                  type="email"
-                  autoComplete="email"
-                  value={formData.confirmEmail}
-                  onChange={handleChange}
-                  className={`block w-full px-4 py-3 rounded-md border ${errors.confirmEmail ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500' : 'border-gray-300 placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500'} shadow-sm`}
-                  placeholder="you@example.com"
-                />
-                {errors.confirmEmail && (
-                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            {step === 1 ? (
+              <>
+                <div>
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Full Name
+                  </label>
+                  <div className="mt-1">
+                    <input
+                      id="name"
+                      name="name"
+                      type="text"
+                      required
+                      value={formData.name}
+                      onChange={handleChange}
+                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    />
                   </div>
-                )}
-              </div>
-              {errors.confirmEmail && (
-                <p className="mt-2 text-sm text-red-600">{errors.confirmEmail}</p>
-              )}
-            </div>
+                </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <div className="mt-1 relative rounded-md shadow-sm">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="new-password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className={`block w-full px-4 py-3 rounded-md border ${errors.password ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500' : 'border-gray-300 placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500'} shadow-sm`}
-                  placeholder="••••••••"
-                />
-                {errors.password && (
-                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Email address
+                  </label>
+                  <div className="mt-1">
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      value={formData.email}
+                      onChange={handleChange}
+                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    />
                   </div>
-                )}
-              </div>
-              {errors.password && (
-                <p className="mt-2 text-sm text-red-600">{errors.password}</p>
-              )}
-            </div>
+                </div>
 
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                Confirm password
-              </label>
-              <div className="mt-1 relative rounded-md shadow-sm">
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  autoComplete="new-password"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className={`block w-full px-4 py-3 rounded-md border ${errors.confirmPassword ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500' : 'border-gray-300 placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500'} shadow-sm`}
-                  placeholder="••••••••"
-                />
-                {errors.confirmPassword && (
-                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
+                <div>
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Password
+                  </label>
+                  <div className="mt-1">
+                    <input
+                      id="password"
+                      name="password"
+                      type="password"
+                      autoComplete="current-password"
+                      required
+                      minLength="6"
+                      value={formData.password}
+                      onChange={handleChange}
+                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    />
                   </div>
-                )}
-              </div>
-              {errors.confirmPassword && (
-                <p className="mt-2 text-sm text-red-600">{errors.confirmPassword}</p>
-              )}
-            </div>
+                </div>
 
-            <div className="flex items-center">
-              <input
-                id="terms"
-                name="terms"
-                type="checkbox"
-                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-              />
-              <label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
-                I agree to the <Link to="/terms" className="text-indigo-600 hover:text-indigo-500">Terms of Service</Link> and <Link to="/privacy" className="text-indigo-600 hover:text-indigo-500">Privacy Policy</Link>
-              </label>
-            </div>
+                <div>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading ? 'Sending OTP...' : 'Send OTP'}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <p className="text-sm text-gray-600 mb-4">
+                    We've sent a 6-digit verification code to{' '}
+                    <span className="font-medium">{formData.email}</span>
+                  </p>
+                  <label
+                    htmlFor="otp"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Verification Code
+                  </label>
+                  <div className="mt-1">
+                    <input
+                      id="otp"
+                      name="otp"
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]{6}"
+                      maxLength="6"
+                      required
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value)}
+                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      placeholder="123456"
+                    />
+                  </div>
+                </div>
 
-            <div>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200 ${isLoading ? 'opacity-75 cursor-not-allowed' : ''}`}
-              >
-                {isLoading ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Creating account...
-                  </>
-                ) : 'Sign up'}
-              </button>
-            </div>
+                <div className="flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={resendOtp}
+                    disabled={loading}
+                    className="text-sm font-medium text-indigo-600 hover:text-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Resend OTP
+                  </button>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading ? 'Verifying...' : 'Verify & Sign Up'}
+                  </button>
+                </div>
+              </>
+            )}
           </form>
 
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
+                <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Or sign up with</span>
+                <span className="px-2 bg-white text-gray-500">
+                  Already have an account?
+                </span>
               </div>
             </div>
 
-            <div className="mt-6 grid grid-cols-2 gap-3">
+            <div className="mt-6">
               <button
-                type="button"
-                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                onClick={() => navigate('/login')}
+                className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
-                <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12.545 10.239v3.821h5.445c-0.712 2.315-2.647 3.972-5.445 3.972-3.332 0-6.033-2.701-6.033-6.032s2.701-6.032 6.033-6.032c1.498 0 2.866 0.549 3.921 1.453l2.814-2.814c-1.786-1.667-4.141-2.676-6.735-2.676-5.522 0-10 4.477-10 10s4.478 10 10 10c8.396 0 10-7.524 10-10 0-0.67-0.069-1.325-0.189-1.961h-9.811z" />
-                </svg>
-                Google
-              </button>
-
-              <button
-                type="button"
-                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-              >
-                <svg className="w-5 h-5 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.325v-21.35c0-.732-.593-1.325-1.325-1.325z" />
-                </svg>
-                Facebook
+                Sign in
               </button>
             </div>
           </div>
