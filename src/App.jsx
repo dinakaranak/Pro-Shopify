@@ -10,7 +10,10 @@ import ProductPage from './component/products/ProductPage'
 import CategoryProduct from './component/products/CategoryProduct'
 import ScrollToTop from './component/ScrollToTop'
 import CartPage from './component/products/CartPage'
-import PurchaseProduct from './component/products/PurchaseProduct'
+import BuyNow from './component/products/BuyNow'
+import CheckoutPage from './component/products/CheckoutPage'
+import AddressForm from './component/products/AdressForm'
+import { ToastContainer } from 'react-toastify'
 
 function App() {
 const [isAuthenticated, setIsAuthenticated]=useState()
@@ -28,10 +31,21 @@ const [isAuthenticated, setIsAuthenticated]=useState()
       <Route path="/productpage/:id" element={<ProductPage />} ></Route>
         <Route path='/category/:category' element={<CategoryProduct />}></Route>
         <Route path='/addtocart' element={<CartPage />}></Route>
-        <Route path='/purchaseproduct' element={<PurchaseProduct />}></Route>
-
+        <Route path='/buy-now' element={<BuyNow />}></Route>
+        <Route path='/checkout' element={<CheckoutPage />}></Route>
+        <Route path='/address/new' element={<AddressForm />}></Route>
 
       </Routes>
+      <ToastContainer 
+        position="top-right" 
+        autoClose={3000} 
+        hideProgressBar={false} 
+        newestOnTop={false} 
+        closeOnClick 
+        pauseOnHover 
+        draggable 
+        theme="light" 
+      />
       </BrowserRouter>
     </>
   )

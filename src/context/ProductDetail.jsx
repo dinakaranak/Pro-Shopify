@@ -6,7 +6,8 @@ export  const ProductContext = createContext();
 
 export const ProductProvider = ({ children }) => {
   const [product, setProduct] = useState(null);
-
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedQuantity, setSelectedQuantity] = useState(1);
 
     const fetchProductDetails = async () => {
       try {
@@ -21,7 +22,8 @@ export const ProductProvider = ({ children }) => {
     fetchProductDetails();
   }, []);
   return (
-    <ProductContext.Provider value={{ product, setProduct, refreshProduct: fetchProductDetails }}>
+    <ProductContext.Provider value={{ product, setProduct, refreshProduct: fetchProductDetails, 
+    selectedProduct, setSelectedProduct, selectedQuantity, setSelectedQuantity }}>
       {children}
     </ProductContext.Provider>
   );
