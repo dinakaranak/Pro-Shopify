@@ -45,7 +45,7 @@ const CheckoutPage = () => {
         });
         setCart(cartResponse.data || { items: [] });
 
-        const addressResponse = await Api.get('/auth/addresses', {
+        const addressResponse = await Api.get('/users/addresses', {
           headers: { Authorization: `Bearer ${token}` }
         });
         
@@ -67,7 +67,7 @@ const CheckoutPage = () => {
   const handleAddressSave = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await Api.get('/auth/addresses', {
+      const response = await Api.get('/users/addresses', {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -94,12 +94,13 @@ const CheckoutPage = () => {
         shippingAddress: {
           fullName: address.fullName,
           phone: address.phone,
-          address: address.street,
+          street: address.street,
           city: address.city,
           state: address.state,
-          zip: address.postalCode
+          postalCode: address.postalCode
         },
-        paymentMethod
+        paymentMethod,
+        total:subtotal,
       };
 
       const response = await Api.post('/orders', orderData, {
@@ -107,7 +108,7 @@ const CheckoutPage = () => {
       });
 
       toast.success('Order placed successfully!');
-      navigate('/orders');
+      navigate('/');
       
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to place order');
@@ -194,15 +195,15 @@ const CheckoutPage = () => {
                 <div className="p-6">
                   <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-semibold flex items-center">
-                      <FiTruck className="mr-2 text-purple-600" />
+                      <FiTruck className="mr-2 text-[#d10024]" />
                       Delivery Address
                     </h2>
                     <button
                       onClick={() => setShowAddressForm(true)}
-                      className="text-purple-600 hover:text-purple-800 font-medium flex items-center gap-1 px-3 py-1.5 rounded-md hover:bg-purple-50 transition-colors"
+                      className="text-[#d10024] hover:text-[#b10024] font-medium flex items-center gap-1 px-3 py-1.5 rounded-md hover:bg-red-50 transition-colors"
                     >
                       <FiPlus className="text-sm" />
-                      Add New
+                      Add New Address
                     </button>
                   </div>
                   
@@ -214,7 +215,7 @@ const CheckoutPage = () => {
                           whileTap={{ scale: 0.98 }}
                           className={`border rounded-lg p-4 cursor-pointer transition-all ${
                             selectedAddress === defaultAddress._id 
-                              ? 'border-purple-500 bg-purple-50 shadow-md' 
+                              ? 'border-[#d10024] bg-red-50 shadow-md' 
                               : 'border-gray-200 hover:border-gray-300'
                           }`}
                           onClick={() => setSelectedAddress(defaultAddress._id)}
@@ -227,7 +228,7 @@ const CheckoutPage = () => {
                               </span>
                             </div>
                             {selectedAddress === defaultAddress._id && (
-                              <span className="bg-purple-100 text-purple-800 p-1 rounded-full">
+                              <span className="bg-purple-100 text-[#d10024] p-1 rounded-full">
                                 <FiCheck className="text-sm" />
                               </span>
                             )}
@@ -244,7 +245,7 @@ const CheckoutPage = () => {
                         <div className="border-t border-gray-100 pt-4">
                           <button
                             onClick={() => setShowAllAddresses(!showAllAddresses)}
-                            className="text-purple-600 hover:text-purple-800 font-medium flex items-center gap-1"
+                            className="text-[#d10024] hover:text-[#b10024] font-medium flex items-center gap-1"
                           >
                             {showAllAddresses ? (
                               <>
@@ -275,7 +276,7 @@ const CheckoutPage = () => {
                               whileTap={{ scale: 0.98 }}
                               className={`border rounded-lg p-4 cursor-pointer transition-all ${
                                 selectedAddress === address._id 
-                                  ? 'border-purple-500 bg-purple-50 shadow-md' 
+                                  ? 'border-[#d10024] bg-red-50 shadow-md' 
                                   : 'border-gray-200 hover:border-gray-300'
                               }`}
                               onClick={() => setSelectedAddress(address._id)}
@@ -283,7 +284,7 @@ const CheckoutPage = () => {
                               <div className="flex justify-between items-start">
                                 <h3 className="font-medium text-gray-800">{address.label}</h3>
                                 {selectedAddress === address._id && (
-                                  <span className="bg-purple-100 text-purple-800 p-1 rounded-full">
+                                  <span className="bg-purple-100 text-[#d10024] p-1 rounded-full">
                                     <FiCheck className="text-sm" />
                                   </span>
                                 )}
@@ -300,12 +301,12 @@ const CheckoutPage = () => {
                   ) : (
                     <div className="text-center py-8 bg-gray-50 rounded-lg">
                       <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <FiMapPin className="text-2xl text-purple-600" />
+                        <FiMapPin className="text-2xl text-[#d10024]" />
                       </div>
                       <p className="text-gray-500 mb-4">No addresses found</p>
                       <button 
                         onClick={() => setShowAddressForm(true)}
-                        className="text-purple-600 hover:text-purple-800 font-medium px-4 py-2 rounded-md bg-purple-50 hover:bg-purple-100 transition-colors"
+                        className="text-[#d10024] hover:text-[#b10024] font-medium px-4 py-2 rounded-md bg-purple-50 hover:bg-purple-100 transition-colors"
                       >
                         Add your first address
                       </button>
@@ -321,7 +322,7 @@ const CheckoutPage = () => {
               >
                 <div className="p-6">
                   <h2 className="text-xl font-semibold mb-4 flex items-center">
-                    <FiCreditCard className="mr-2 text-purple-600" />
+                    <FiCreditCard className="mr-2 text-[#d10024]" />
                     Payment Method
                   </h2>
                   <div className="space-y-3">
@@ -329,14 +330,14 @@ const CheckoutPage = () => {
                       whileTap={{ scale: 0.98 }}
                       className={`border rounded-xl p-4 cursor-pointer transition-all ${
                         paymentMethod === 'cod' 
-                          ? 'border-purple-500 bg-purple-50 shadow-md' 
+                          ? 'border-[#d10024] bg-red-50 shadow-md' 
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                       onClick={() => setPaymentMethod('cod')}
                     >
                       <div className="flex items-center">
                         <div className={`h-5 w-5 rounded-full border flex items-center justify-center mr-3 ${
-                          paymentMethod === 'cod' ? 'border-purple-500 bg-purple-500' : 'border-gray-300'
+                          paymentMethod === 'cod' ? 'border-[#d10024] bg-[#d10024]' : 'border-gray-300'
                         }`}>
                           {paymentMethod === 'cod' && <div className="h-2 w-2 rounded-full bg-white"></div>}
                         </div>
@@ -351,14 +352,14 @@ const CheckoutPage = () => {
                       whileTap={{ scale: 0.98 }}
                       className={`border rounded-xl p-4 cursor-pointer transition-all ${
                         paymentMethod === 'card' 
-                          ? 'border-purple-500 bg-purple-50 shadow-md' 
+                          ? 'border-[#d10024] bg-red-50 shadow-md' 
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                       onClick={() => setPaymentMethod('card')}
                     >
                       <div className="flex items-center">
                         <div className={`h-5 w-5 rounded-full border flex items-center justify-center mr-3 ${
-                          paymentMethod === 'card' ? 'border-purple-500 bg-purple-500' : 'border-gray-300'
+                          paymentMethod === 'card' ? 'border-[#d10024] bg-[#d10024]' : 'border-gray-300'
                         }`}>
                           {paymentMethod === 'card' && <div className="h-2 w-2 rounded-full bg-white"></div>}
                         </div>
@@ -383,7 +384,7 @@ const CheckoutPage = () => {
               >
                 <div className="p-6">
                   <h2 className="text-xl font-semibold mb-4 flex items-center">
-                    <FiPackage className="mr-2 text-purple-600" />
+                    <FiPackage className="mr-2 text-[#d10024]" />
                     Order Summary
                   </h2>
                   
@@ -450,7 +451,7 @@ const CheckoutPage = () => {
                     disabled={!selectedAddress}
                     className={`w-full py-3 rounded-lg font-medium transition-colors flex items-center justify-center ${
                       selectedAddress 
-                        ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 shadow-md' 
+                        ? 'bg-gradient-to-r from-[#d10024] to-[#b10024] text-white hover:from-[#b10024] hover:to-[#b10024] shadow-md' 
                         : 'bg-gray-200 text-gray-500 cursor-not-allowed'
                     }`}
                   >

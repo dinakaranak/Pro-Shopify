@@ -49,7 +49,7 @@ const BuyNow = () => {
           return;
         }
 
-        const response = await Api.get('/auth/addresses', {
+        const response = await Api.get('/users/addresses', {
           headers: { Authorization: `Bearer ${token}` }
         });
         
@@ -71,7 +71,7 @@ const BuyNow = () => {
   const handleAddressSave = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await Api.get('/auth/addresses', {
+      const response = await Api.get('/users/addresses', {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -106,12 +106,13 @@ const BuyNow = () => {
         shippingAddress: {
           fullName: address.fullName,
           phone: address.phone,
-          address: address.street,
+          street: address.street,
           city: address.city,
           state: address.state,
-          zip: address.postalCode
+          postalCode: address.postalCode
         },
         paymentMethod,
+        total:subtotal,
         mode: 'buy-now'
       };
 
@@ -120,7 +121,7 @@ const BuyNow = () => {
       });
 
       toast.success('Order placed successfully!');
-      navigate('/orders');
+      navigate('/');
       
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to place order');

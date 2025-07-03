@@ -332,7 +332,7 @@ const ProductList = () => {
       
       {filteredProducts().length > 0 && (
         <div className="mt-8 flex justify-center">
-          <button className="border border-purple-500 text-purple-500 px-4 py-2 rounded-md hover:bg-blue-50 transition-colors">
+          <button className="border border-[#d10024] text-[#d10024] px-4 py-2 rounded-md hover:bg-red-50 transition-colors">
             Load More Products
           </button>
         </div>

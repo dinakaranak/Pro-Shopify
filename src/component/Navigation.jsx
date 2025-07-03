@@ -179,7 +179,7 @@ const Navigation = () => {
                             </IconButton>
                         )}
                         
-                        <div className='lg:w-[22%] hidden lg:block'>
+                        {/* <div className='lg:w-[18%] hidden lg:block'>
                             <Button 
                                 fullWidth
                                 variant="outlined"
@@ -190,10 +190,10 @@ const Navigation = () => {
                             >
                                 Explore Our Collections
                             </Button>
-                        </div>
+                        </div> */}
                         
                         <div className='lg:w-[62%] hidden lg:block'>
-                            <ul className='flex items-center gap-1'>
+                            <ul className='flex items-center gap-5'>
                                 {navItems.map((item) => (
                                     <li key={item.name} className="list-none relative group">
                                         {item.submenu ? (
@@ -247,7 +247,7 @@ const Navigation = () => {
                             </ul>
                         </div>
                         
-                        <div className='lg:w-[16%] hidden lg:flex items-center justify-end'>
+                        <div className='lg:w-[20%] hidden lg:flex items-center justify-end'>
                             <motion.p 
                                 className='text-sm font-medium flex items-center gap-2 text-[#d10024]'
                                 whileHover={{ scale: 1.02 }}

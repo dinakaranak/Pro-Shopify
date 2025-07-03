@@ -35,7 +35,7 @@ const AddressForm = ({ onSave, onClose, initialData = {} }) => {
         return;
       }
 
-      await Api.post('/auth/addresses', formData, {
+      await Api.post('/users/addresses', formData, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
