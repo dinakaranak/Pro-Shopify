@@ -19,6 +19,9 @@ import OrdersPage from './component/Profile/OrderPage'
 import OrderDetails from './component/Profile/OrderDetails'
 import HelpCenter from './component/Profile/HelpCenter'
 import Wishlist from './component/Profile/Wishlist'
+import Header from './component/Header'
+import Navigation from './component/Navigation'
+import Footer from './component/Footer'
 
 function App() {
 const [isAuthenticated, setIsAuthenticated]=useState()
@@ -27,6 +30,8 @@ const [isAuthenticated, setIsAuthenticated]=useState()
     <>
       <BrowserRouter>
       <ScrollToTop />
+      <Header />
+      <Navigation />
       <Routes>
         <Route path='/' element={<Home />}></Route>
         <Route path='/signup' element={<SignUp setIsAuthenticated={setIsAuthenticated}/>}></Route>
@@ -62,6 +67,7 @@ const [isAuthenticated, setIsAuthenticated]=useState()
         draggable 
         theme="dark" 
       />
+      <Footer />
       </BrowserRouter>
     </>
   )

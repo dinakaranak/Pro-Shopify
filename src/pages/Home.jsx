@@ -1,18 +1,13 @@
 import React from 'react'
-import Header from '../component/Header'
 import Banner from '../component/HomePage/Banner'
 import Features from '../component/HomePage/Features'
-import Footer from '../component/Footer'
 import SubBanner from '../component/HomePage/SubBanner'
 import Division from '../component/HomePage/Division'
-import Navigation from '../component/Navigation'
 import ProductsList from '../component/products/ProductsList'
 
 const Home = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header />
-      <Navigation />
       
       {/* Hero Section */}
       <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -44,7 +39,6 @@ const Home = () => {
         </div>
       </section>
 
-      <Footer />
     </div>
   )
 }

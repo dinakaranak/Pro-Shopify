@@ -15,9 +15,6 @@ import {
   FiMapPin
 } from 'react-icons/fi';
 import { motion } from 'framer-motion';
-import Header from '../Header';
-import Navigation from '../Navigation';
-import Footer from '../Footer';
 import AddressForm from './AdressForm';
 
 const BuyNow = () => {
@@ -154,13 +151,10 @@ const BuyNow = () => {
   if (showAddressForm) {
     return (
       <>
-        <Header />
-        <Navigation />
         <AddressForm 
           onSave={handleAddressSave}
           onClose={() => setShowAddressForm(false)}
         />
-        <Footer />
       </>
     );
   }
@@ -173,8 +167,6 @@ const BuyNow = () => {
 
   return (
     <>
-      <Header />
-      <Navigation />
       
       <div className="container mx-auto px-4 py-8">
         <motion.div
@@ -470,8 +462,6 @@ const BuyNow = () => {
           </div>
         </motion.div>
       </div>
-      
-      <Footer />
     </>
   );
 };

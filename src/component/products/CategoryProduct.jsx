@@ -4,9 +4,6 @@ import { ProductContext } from '../../context/ProductDetail';
 import { FaSpinner, FaExclamationTriangle, FaFilter, FaChevronDown, FaChevronUp, FaTimes } from 'react-icons/fa';
 import { FaHeart, FaRegHeart, FaStar, FaShoppingCart, FaSearch } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
-import Header from '../Header';
-import Navigation from '../Navigation';
-import Footer from '../Footer';
 import { useWishlist } from '../../context/WishlistContext';
 import { toast } from 'react-toastify';
 
@@ -37,9 +34,9 @@ const CategoryProduct = () => {
     addToWishlist,
     removeFromWishlist,
     isInWishlist,
-    fetchWishlistCount
+    fetchWishlistCount,
+    wishlistItems
   } = useWishlist();
-
 
   useEffect(() => {
     if (Array.isArray(product)) {
@@ -164,8 +161,6 @@ const CategoryProduct = () => {
 
   return (
     <>
-      <Header />
-      <Navigation />
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
@@ -609,7 +604,7 @@ const CategoryProduct = () => {
                 <AnimatePresence>
                   {filteredProducts.map((product) => (
                     <motion.div
-                      key={product.id}
+                      key={product._id} 
                       className="border rounded-lg p-4 hover:shadow-lg transition-shadow bg-white flex flex-col group"
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
@@ -722,28 +717,6 @@ const CategoryProduct = () => {
 
                         {/* Actions */}
                         <div className="mt-4 flex justify-between items-center">
-                          {/* <button 
-                            className="text-sm text-blue-600 font-medium hover:underline"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleClick(product._id);
-                            }}
-                          >
-                            View Details
-                          </button>
-                          <motion.button
-                            className="flex items-center gap-1 bg-gradient-to-r from-blue-600 to-blue-500 text-white px-3 py-1.5 rounded text-sm hover:from-blue-700 hover:to-blue-600 transition-all shadow-sm"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              console.log('Add to cart:', product.id);
-                            }}
-                          >
-                            <FaShoppingCart className="text-xs" />
-                            Add to Cart
-                          </motion.button> */}
-                          {/* Rating */}
                           <div className="flex items-center mb-2">
                             <div className="flex items-center bg-blue-50 px-2 py-1 rounded">
                               <span className="text-yellow-500 mr-1">{product.rating || 4.2}</span>
@@ -786,7 +759,6 @@ const CategoryProduct = () => {
           </div>
         </div>
       </div>
-      <Footer />
     </>
   );
 };

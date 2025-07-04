@@ -4,65 +4,49 @@ import { FaHeart, FaRegHeart, FaShoppingCart, FaTrash } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import Api from '../../Services/Api';
-import Header from '../Header';
-import Navigation from '../Navigation';
-import Footer from '../Footer';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 
 const Wishlist = () => {
   const navigate = useNavigate();
-  // Destructure functions and state from your contexts
   const { wishlistItems, removeFromWishlist, fetchWishlistItems } = useWishlist();
   const { fetchCartCount } = useCart();
 
-  // Fetches wishlist items on component mount.
-  // The dependency array [fetchWishlistItems] is correct as fetchWishlistItems
-  // is expected to be stable (e.g., memoized by useCallback in its context).
   useEffect(() => {
     fetchWishlistItems();
   }, [fetchWishlistItems]);
 
-  // Handler for removing an item from the wishlist
   const handleRemoveItem = async (itemId) => {
-    // Calling the context function, which presumably handles API calls and state updates
     const success = await removeFromWishlist(itemId);
     if (success) {
       toast.success('Item removed from wishlist');
     } else {
-      // You might want to get a specific error message from removeFromWishlist if possible
       toast.error('Failed to remove item');
     }
   };
 
-  // Handler for adding a product to the cart
   const handleAddToCart = async (productId) => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        // Correctly redirects to login, preserving the current path to return after login
         navigate('/login', { state: { from: '/wishlist' } });
         return;
       }
 
       await Api.post('/cart', {
         productId,
-        quantity: 1 // Always adding one quantity from wishlist to cart
+        quantity: 1 
       });
 
       toast.success('Product added to cart!');
-      fetchCartCount(); // Update the cart count in the Header/Navigation
+      fetchCartCount(); 
     } catch (error) {
-      // Improved error message handling
       toast.error(error.response?.data?.message || 'Failed to add to cart. Please try again.');
     }
   };
 
   return (
     <>
-      <Header />
-      <Navigation />
-
       <div className="container mx-auto px-4 py-8 min-h-screen">
         <h1 className="text-3xl font-bold mb-6 text-gray-800">Your Wishlist</h1> {/* Added text color */}
 
@@ -151,8 +135,6 @@ const Wishlist = () => {
           </div>
         )}
       </div>
-
-      <Footer />
     </>
   );
 };

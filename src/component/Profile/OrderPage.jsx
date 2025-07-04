@@ -39,9 +39,6 @@ import {
   Cancel as CancelledIcon
 } from '@mui/icons-material';
 import Api from '../../Services/Api';
-import Header from '../Header';
-import Navigation from '../Navigation';
-import Footer from '../Footer';
 
 const OrdersPage = () => {
   const [orders, setOrders] = useState([]);
@@ -241,8 +238,6 @@ const OrdersPage = () => {
 
   return (
     <>
-    <Header />
-    <Navigation />
     <Box sx={{
       p: { xs: 2, md: 3 },
       maxWidth: 1200,
@@ -595,7 +590,6 @@ const OrdersPage = () => {
         </Paper>
       )}
     </Box>
-    <Footer />
     </>
   );
 };

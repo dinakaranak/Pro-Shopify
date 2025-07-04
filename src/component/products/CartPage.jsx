@@ -5,9 +5,6 @@ import Api from '../../Services/Api';
 import { FiShoppingBag, FiTrash2, FiPlus, FiMinus } from 'react-icons/fi';
 import { MdOutlineRemoveShoppingCart } from 'react-icons/md';
 import { motion } from 'framer-motion';
-import Header from '../Header';
-import Navigation from '../Navigation';
-import Footer from '../Footer';
 
 const CartPage = () => {
   const [cart, setCart] = useState({ items: [] });
@@ -173,8 +170,6 @@ const CartPage = () => {
 
   return (
     <>
-      <Header />
-      <Navigation />
       <div className="container mx-auto px-4 py-8">
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
@@ -374,7 +369,6 @@ const CartPage = () => {
           </div>
         )}
       </div>
-      <Footer />
     </>
   );
 };

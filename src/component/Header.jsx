@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from '../assets/logo3.png';
@@ -49,10 +50,12 @@ const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [mobileAnchorEl, setMobileAnchorEl] = useState(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const { cartCount, cartError, fetchCartCount } = useCart();
   const { enqueueSnackbar } = useSnackbar();
   const open = Boolean(anchorEl);
+  const mobileOpenMenu = Boolean(mobileAnchorEl);
   const { wishlistCount } = useWishlist();
 
   useEffect(() => {
@@ -90,6 +93,7 @@ const Header = () => {
       setIsLoggedIn(false);
       setUser(null);
       handleClose();
+      handleMobileMenuClose();
       navigate('/');
     } catch (error) {
       console.error('Logout error:', error);
@@ -109,6 +113,7 @@ const Header = () => {
       setUser(null);
       setDeleteConfirmOpen(false);
       handleClose();
+      handleMobileMenuClose();
       enqueueSnackbar('Account deleted successfully', { variant: 'success' });
       navigate('/');
     } catch (error) {
@@ -125,8 +130,16 @@ const Header = () => {
     setAnchorEl(event.currentTarget);
   };
 
+  const handleMobileMenuClick = (event) => {
+    setMobileAnchorEl(event.currentTarget);
+  };
+
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleMobileMenuClose = () => {
+    setMobileAnchorEl(null);
   };
 
   const drawer = (
@@ -208,17 +221,9 @@ const Header = () => {
       <Divider />
 
       <div className="flex justify-around p-4 bg-gray-50">
-        <Tooltip title="Compare">
-          <IconButton component={Link} to="/compare" onClick={handleDrawerToggle}>
-            <StyledBadge badgeContent={4} color="error">
-              <IoGitCompareOutline className="text-xl" />
-            </StyledBadge>
-          </IconButton>
-        </Tooltip>
-
         <Tooltip title="Wishlist">
           <IconButton component={Link} to="/wishlist" onClick={handleDrawerToggle}>
-            <StyledBadge badgeContent={4} color="error">
+            <StyledBadge badgeContent={wishlistCount} color="error">
               <FaRegHeart className="text-xl" />
             </StyledBadge>
           </IconButton>
@@ -236,7 +241,7 @@ const Header = () => {
   );
 
   return (
-    <header className='bg-white shadow-sm'>
+    <header className='bg-white shadow-sm w-full'>
       {/* Top Strip */}
       <div className='top-strip py-2 border-b border-gray-200 bg-gray-50 hidden md:block'>
         <div className='container mx-auto px-4'>
@@ -263,11 +268,11 @@ const Header = () => {
         <div className='container mx-auto px-4'>
           <div className='flex items-center justify-between'>
             {/* Mobile Menu Button */}
-            <div className='md:hidden flex items-center'>
+            {/* <div className='md:hidden flex items-center'>
               <IconButton onClick={handleDrawerToggle} className="text-gray-700">
                 <MdMenu className="text-2xl" />
               </IconButton>
-            </div>
+            </div> */}
 
             {/* Logo */}
             <div className='flex-1 md:flex-none md:w-1/4 flex justify-center md:justify-start'>
@@ -287,9 +292,10 @@ const Header = () => {
 
             {/* Action Buttons */}
             <div className='flex-1 md:flex-none md:w-1/4 flex justify-end items-center space-x-1 md:space-x-3'>
-              {!isMobile && (
+              {isLoggedIn ? (
                 <>
-                  {isLoggedIn ? (
+                  {/* Desktop User Menu */}
+                  {!isMobile && (
                     <div className="flex items-center">
                       <Button
                         onClick={handleClick}
@@ -332,199 +338,70 @@ const Header = () => {
                       >
                         <span className="text-sm font-medium ml-1">{user?.name}</span>
                       </Button>
-                      <Menu
-                        anchorEl={anchorEl}
-                        open={open}
-                        onClose={handleClose}
-                        PaperProps={{
-                          elevation: 4,
-                          sx: {
-                            overflow: 'visible',
-                            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.15))',
-                            mt: 1.5,
-                            minWidth: 200,
-                            '& .MuiAvatar-root': {
-                              width: 32,
-                              height: 32,
-                              ml: -0.5,
-                              mr: 1,
-                            },
-                            '&:before': {
-                              content: '""',
-                              display: 'block',
-                              position: 'absolute',
-                              top: 0,
-                              right: 14,
-                              width: 10,
-                              height: 10,
-                              bgcolor: 'background.paper',
-                              transform: 'translateY(-50%) rotate(45deg)',
-                              zIndex: 0,
-                            },
-                          },
-                        }}
-                        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                      >
-                        <MenuItem
-                          onClick={() => {
-                            navigate('/profile');
-                            handleClose();
-                          }}
-                          sx={{ py: 1.5 }}
-                        >
-                          <ListItemIcon>
-                            <FaUser fontSize="small" />
-                          </ListItemIcon>
-                          <Typography variant="body2">My Profile</Typography>
-                        </MenuItem>
-                        <MenuItem
-                          onClick={() => {
-                            navigate('/orders');
-                            handleClose();
-                          }}
-                          sx={{ py: 1.5 }}
-                        >
-                          <ListItemIcon>
-                            <FaShoppingBag fontSize="small" />
-                          </ListItemIcon>
-                          <Typography variant="body2">Orders</Typography>
-                        </MenuItem>
-                        <MenuItem
-                          onClick={() => {
-                            navigate('/wishlist');
-                            handleClose();
-                          }}
-                          sx={{ py: 1.5 }}
-                        >
-                          <ListItemIcon>
-                            <FaHeart fontSize="small" />
-                          </ListItemIcon>
-                          <Typography variant="body2">Wishlist</Typography>
-                        </MenuItem>
-                        <MenuItem
-                          onClick={() => {
-                            navigate('/orders');
-                            handleClose();
-                          }}
-                          sx={{ py: 1.5 }}
-                        >
-                          <ListItemIcon>
-                            <FaHeart fontSize="small" />
-                          </ListItemIcon>
-                          <Typography variant="body2">Tracking Order</Typography>
-                        </MenuItem>
-                        <MenuItem
-                          onClick={() => {
-                            navigate('/help-center');
-                            handleClose();
-                          }}
-                          sx={{ py: 1.5 }}
-                        >
-                          <ListItemIcon>
-                            <MdHelpCenter fontSize="small" />
-                          </ListItemIcon>
-                          <Typography variant="body2">Help Center</Typography>
-                        </MenuItem>
-                        <MenuItem
-                          onClick={() => setDeleteConfirmOpen(true)}
-                          sx={{ py: 1.5 }}
-                        >
-                          <ListItemIcon>
-                            <MdDeleteForever fontSize="16px" color="error" />
-                          </ListItemIcon>
-                          <Typography variant="body2" color="error">Delete Account</Typography>
-                        </MenuItem>
-                        <Divider sx={{ my: 0.5 }} />
-                        <MenuItem
-                          onClick={handleLogout}
-                          sx={{ py: 1.5 }}
-                        >
-                          <ListItemIcon>
-                            <FaSignOutAlt fontSize="small" />
-                          </ListItemIcon>
-                          <Typography variant="body2" color='error'>Logout</Typography>
-                        </MenuItem>
-                      </Menu>
-                      <Menu
-                        anchorEl={anchorEl}
-                        open={deleteConfirmOpen}
-                        onClose={() => setDeleteConfirmOpen(false)}
-                        anchorOrigin={{
-                          vertical: 'center',
-                          horizontal: 'center',
-                        }}
-                        transformOrigin={{
-                          vertical: 'center',
-                          horizontal: 'center',
-                        }}
-                        PaperProps={{
-                          style: {
-                            padding: '20px',
-                            maxWidth: '300px',
-                          },
-                        }}
-                      >
-                        <Typography variant="body1" sx={{ mb: 2, fontWeight: 'bold' }}>
-                          Are you sure you want to delete your account?
-                        </Typography>
-                        <Typography variant="body2" sx={{ mb: 2 }}>
-                          This action cannot be undone. All your data will be permanently removed.
-                        </Typography>
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                          <Button
-                            variant="outlined"
-                            onClick={() => setDeleteConfirmOpen(false)}
-                            size="small"
-                          >
-                            Cancel
-                          </Button>
-                          <Button
-                            variant="contained"
-                            color="error"
-                            onClick={handleDeleteAccount}
-                            size="small"
-                          >
-                            Delete
-                          </Button>
-                        </Box>
-                      </Menu>
                     </div>
-                  ) : (
-                    <Button
-                      variant="contained"
-                      color="error"
-                      onClick={handleLoginClick}
-                      size="small"
-                      className='hidden md:block'
-                      startIcon={<MdAccountCircle />}
-                      sx={{
-                        textTransform: 'none',
-                        fontWeight: 'medium',
-                        px: 2,
-                        py: 1
-                      }}
+                  )}
+
+                  {/* Mobile User Icon */}
+                  {isMobile && (
+                    <IconButton
+                      size="medium"
+                      onClick={handleMobileMenuClick}
+                      className="text-gray-700 hover:text-[#d10024]"
                     >
-                      Login
-                    </Button>
+                      <Avatar
+                        sx={{
+                          width: 30,
+                          height: 30,
+                          bgcolor: '#d10024',
+                          fontSize: '0.875rem',
+                          fontWeight: 'bold'
+                        }}
+                      >
+                        {user?.name?.charAt(0).toUpperCase()}
+                      </Avatar>
+                    </IconButton>
                   )}
                 </>
+              ) : (
+                !isMobile && (
+                  <Button
+                    variant="contained"
+                    color="error"
+                    onClick={handleLoginClick}
+                    size="small"
+                    className='hidden md:block'
+                    startIcon={<MdAccountCircle />}
+                    sx={{
+                      textTransform: 'none',
+                      fontWeight: 'medium',
+                      px: 2,
+                      py: 1
+                    }}
+                  >
+                    Login
+                  </Button>
+                )
               )}
 
               <Tooltip title="Wishlist" placement="bottom" arrow>
                 <IconButton
                   size="medium"
-                  component={Link} // Correctly uses react-router-dom's Link component
-                  to="/wishlist"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const token = localStorage.getItem('token');
+                    if (!token) {
+                      navigate('/login', { state: { from: '/wishlist' } });
+                    } else {
+                      navigate('/wishlist');
+                    }
+                  }}
                   className="text-gray-700 hover:text-[#d10024]"
                 >
-                  {/* StyledBadge is assumed to be a custom component for displaying the count */}
                   <StyledBadge badgeContent={wishlistCount} color="error">
-                    <FaRegHeart className="text-[20px]" /> 
+                    <FaRegHeart className="text-[20px]" />
                   </StyledBadge>
                 </IconButton>
               </Tooltip>
-
               <Tooltip title="Cart" placement="bottom" arrow>
                 <IconButton
                   size="medium"
@@ -548,6 +425,271 @@ const Header = () => {
           )}
         </div>
       </div>
+
+      {/* Desktop User Menu */}
+      <Menu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        PaperProps={{
+          elevation: 4,
+          sx: {
+            overflow: 'visible',
+            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.15))',
+            mt: 1.5,
+            minWidth: 200,
+            '& .MuiAvatar-root': {
+              width: 32,
+              height: 32,
+              ml: -0.5,
+              mr: 1,
+            },
+            '&:before': {
+              content: '""',
+              display: 'block',
+              position: 'absolute',
+              top: 0,
+              right: 14,
+              width: 10,
+              height: 10,
+              bgcolor: 'background.paper',
+              transform: 'translateY(-50%) rotate(45deg)',
+              zIndex: 0,
+            },
+          },
+        }}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+      >
+        <MenuItem
+          onClick={() => {
+            navigate('/profile');
+            handleClose();
+          }}
+          sx={{ py: 1.5 }}
+        >
+          <ListItemIcon>
+            <FaUser fontSize="small" />
+          </ListItemIcon>
+          <Typography variant="body2">My Profile</Typography>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            navigate('/orders');
+            handleClose();
+          }}
+          sx={{ py: 1.5 }}
+        >
+          <ListItemIcon>
+            <FaShoppingBag fontSize="small" />
+          </ListItemIcon>
+          <Typography variant="body2">Orders</Typography>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            navigate('/wishlist');
+            handleClose();
+          }}
+          sx={{ py: 1.5 }}
+        >
+          <ListItemIcon>
+            <FaHeart fontSize="small" />
+          </ListItemIcon>
+          <Typography variant="body2">Wishlist</Typography>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            navigate('/orders');
+            handleClose();
+          }}
+          sx={{ py: 1.5 }}
+        >
+          <ListItemIcon>
+            <FaHeart fontSize="small" />
+          </ListItemIcon>
+          <Typography variant="body2">Tracking Order</Typography>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            navigate('/help-center');
+            handleClose();
+          }}
+          sx={{ py: 1.5 }}
+        >
+          <ListItemIcon>
+            <MdHelpCenter fontSize="small" />
+          </ListItemIcon>
+          <Typography variant="body2">Help Center</Typography>
+        </MenuItem>
+        <MenuItem
+          onClick={() => setDeleteConfirmOpen(true)}
+          sx={{ py: 1.5 }}
+        >
+          <ListItemIcon>
+            <MdDeleteForever fontSize="16px" color="error" />
+          </ListItemIcon>
+          <Typography variant="body2" color="error">Delete Account</Typography>
+        </MenuItem>
+        <Divider sx={{ my: 0.5 }} />
+        <MenuItem
+          onClick={handleLogout}
+          sx={{ py: 1.5 }}
+        >
+          <ListItemIcon>
+            <FaSignOutAlt fontSize="small" />
+          </ListItemIcon>
+          <Typography variant="body2" color='error'>Logout</Typography>
+        </MenuItem>
+      </Menu>
+
+      {/* Mobile User Menu */}
+      <Menu
+        anchorEl={mobileAnchorEl}
+        open={mobileOpenMenu}
+        onClose={handleMobileMenuClose}
+        PaperProps={{
+          elevation: 4,
+          sx: {
+            overflow: 'visible',
+            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.15))',
+            mt: 1.5,
+            minWidth: 200,
+            '& .MuiAvatar-root': {
+              width: 32,
+              height: 32,
+              ml: -0.5,
+              mr: 1,
+            },
+            '&:before': {
+              content: '""',
+              display: 'block',
+              position: 'absolute',
+              top: 0,
+              right: 14,
+              width: 10,
+              height: 10,
+              bgcolor: 'background.paper',
+              transform: 'translateY(-50%) rotate(45deg)',
+              zIndex: 0,
+            },
+          },
+        }}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+      >
+        <MenuItem
+          onClick={() => {
+            navigate('/profile');
+            handleMobileMenuClose();
+          }}
+          sx={{ py: 1.5 }}
+        >
+          <ListItemIcon>
+            <FaUser fontSize="small" />
+          </ListItemIcon>
+          <Typography variant="body2">My Profile</Typography>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            navigate('/orders');
+            handleMobileMenuClose();
+          }}
+          sx={{ py: 1.5 }}
+        >
+          <ListItemIcon>
+            <FaShoppingBag fontSize="small" />
+          </ListItemIcon>
+          <Typography variant="body2">Orders</Typography>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            navigate('/wishlist');
+            handleMobileMenuClose();
+          }}
+          sx={{ py: 1.5 }}
+        >
+          <ListItemIcon>
+            <FaHeart fontSize="small" />
+          </ListItemIcon>
+          <Typography variant="body2">Wishlist</Typography>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            navigate('/help-center');
+            handleMobileMenuClose();
+          }}
+          sx={{ py: 1.5 }}
+        >
+          <ListItemIcon>
+            <MdHelpCenter fontSize="small" />
+          </ListItemIcon>
+          <Typography variant="body2">Help Center</Typography>
+        </MenuItem>
+        <MenuItem
+          onClick={() => setDeleteConfirmOpen(true)}
+          sx={{ py: 1.5 }}
+        >
+          <ListItemIcon>
+            <MdDeleteForever fontSize="16px" color="error" />
+          </ListItemIcon>
+          <Typography variant="body2" color="error">Delete Account</Typography>
+        </MenuItem>
+        <Divider sx={{ my: 0.5 }} />
+        <MenuItem
+          onClick={handleLogout}
+          sx={{ py: 1.5 }}
+        >
+          <ListItemIcon>
+            <FaSignOutAlt fontSize="small" />
+          </ListItemIcon>
+          <Typography variant="body2" color='error'>Logout</Typography>
+        </MenuItem>
+      </Menu>
+
+      {/* Delete Confirmation Dialog */}
+      <Menu
+        anchorEl={anchorEl}
+        open={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        anchorOrigin={{
+          vertical: 'center',
+          horizontal: 'center',
+        }}
+        transformOrigin={{
+          vertical: 'center',
+          horizontal: 'center',
+        }}
+        PaperProps={{
+          style: {
+            padding: '20px',
+            maxWidth: '300px',
+          },
+        }}
+      >
+        <Typography variant="body1" sx={{ mb: 2, fontWeight: 'bold' }}>
+          Are you sure you want to delete your account?
+        </Typography>
+        <Typography variant="body2" sx={{ mb: 2 }}>
+          This action cannot be undone. All your data will be permanently removed.
+        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+          <Button
+            variant="outlined"
+            onClick={() => setDeleteConfirmOpen(false)}
+            size="small"
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleDeleteAccount}
+            size="small"
+          >
+            Delete
+          </Button>
+        </Box>
+      </Menu>
 
       {/* Mobile Drawer */}
       <Drawer

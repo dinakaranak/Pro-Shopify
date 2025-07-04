@@ -36,9 +36,6 @@ import {
   Rowing
 } from '@mui/icons-material';
 import Api from '../../Services/Api';
-import Header from '../Header';
-import Navigation from '../Navigation';
-import Footer from '../Footer';
 
 const OrderDetails = () => {
   const { id } = useParams();
@@ -162,8 +159,6 @@ const OrderDetails = () => {
 
   return (
     <>
-    <Header />
-    <Navigation />
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
       <Button
         startIcon={<ArrowBack />}
@@ -466,7 +461,6 @@ const OrderDetails = () => {
   </Box>
 </Box>
     </Box>
-    <Footer />
     </>
   );
 };

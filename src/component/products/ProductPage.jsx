@@ -8,9 +8,6 @@ import {
 } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Rating } from 'react-simple-star-rating';
-import Footer from '../Footer';
-import Header from '../Header';
-import Navigation from '../Navigation';
 import { toast } from 'react-toastify';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
@@ -219,8 +216,6 @@ const toggleFavorite = async () => {
 
   return (
     <>
-      <Header />
-      <Navigation />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumbs */}
@@ -724,8 +719,6 @@ const toggleFavorite = async () => {
           )}
         </div>
       </div>
-
-      <Footer />
     </>
   );
 };
