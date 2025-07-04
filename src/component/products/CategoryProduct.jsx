@@ -7,36 +7,46 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Header from '../Header';
 import Navigation from '../Navigation';
 import Footer from '../Footer';
+import { useWishlist } from '../../context/WishlistContext';
+import { toast } from 'react-toastify';
 
 const CategoryProduct = () => {
   const { category } = useParams();
   const { product, loading, error } = useContext(ProductContext);
   const navigate = useNavigate();
-  
+
   // State for filters
   const [priceFilter, setPriceFilter] = useState('');
   const [brandFilter, setBrandFilter] = useState('');
   const [selectedSubcategory, setSelectedSubcategory] = useState('');
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   // State for collapsible sections
   const [openSections, setOpenSections] = useState({
     subcategories: true,
     price: true,
     brands: true
   });
-  
+
   // Extract unique brands and subcategories from products
   const [brands, setBrands] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
-  
+
+  const {
+    addToWishlist,
+    removeFromWishlist,
+    isInWishlist,
+    fetchWishlistCount
+  } = useWishlist();
+
+
   useEffect(() => {
     if (Array.isArray(product)) {
       // Extract unique brands
       const uniqueBrands = [...new Set(product.map(item => item.brand))].filter(Boolean);
       setBrands(uniqueBrands);
-      
+
       // Extract unique subcategories for the current category
       const categoryProducts = product.filter(
         item => item.category && item.category.toString().toLowerCase() === category.toLowerCase()
@@ -53,34 +63,34 @@ const CategoryProduct = () => {
   // Filter products by category first
   const categoryProducts = Array.isArray(product)
     ? product.filter(
-        (item) => item.category && item.category.toString().toLowerCase() === category.toLowerCase()
-      )
+      (item) => item.category && item.category.toString().toLowerCase() === category.toLowerCase()
+    )
     : [];
 
   // Apply additional filters
   let filteredProducts = [...categoryProducts];
-  
+
   // Apply subcategory filter
   if (selectedSubcategory) {
     filteredProducts = filteredProducts.filter(
       item => item.subcategory && item.subcategory.toLowerCase() === selectedSubcategory.toLowerCase()
     );
   }
-  
+
   // Apply brand filter
   if (brandFilter) {
     filteredProducts = filteredProducts.filter(
       item => item.brand && item.brand.toLowerCase() === brandFilter.toLowerCase()
     );
   }
-  
+
   // Apply price filter
   if (priceFilter === 'low-to-high') {
-    filteredProducts.sort((a, b) => 
+    filteredProducts.sort((a, b) =>
       (a.discountPrice || a.originalPrice) - (b.discountPrice || b.originalPrice)
     );
   } else if (priceFilter === 'high-to-low') {
-    filteredProducts.sort((a, b) => 
+    filteredProducts.sort((a, b) =>
       (b.discountPrice || b.originalPrice) - (a.discountPrice || a.originalPrice)
     );
   } else if (priceFilter === 'discount') {
@@ -133,7 +143,7 @@ const CategoryProduct = () => {
         </motion.div>
         <p className="text-lg text-gray-600">Failed to load products. Please try again later.</p>
         <p className="text-sm text-gray-500 mt-2">{error.message}</p>
-        <button 
+        <button
           onClick={() => window.location.reload()}
           className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
         >
@@ -166,7 +176,7 @@ const CategoryProduct = () => {
               {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'} found
             </p>
           </div>
-          
+
           <div className="flex gap-3 w-full md:w-auto">
             {/* Search Bar */}
             <div className="relative flex-grow md:w-64">
@@ -187,8 +197,8 @@ const CategoryProduct = () => {
                 </button>
               )}
             </div>
-            
-            <button 
+
+            <button
               className="md:hidden flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors"
               onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
             >
@@ -223,8 +233,8 @@ const CategoryProduct = () => {
             )}
             {priceFilter && (
               <span className="bg-white px-3 py-1 rounded-full text-sm flex items-center gap-1 shadow-sm">
-                Price: {priceFilter === 'low-to-high' ? 'Low to High' : 
-                       priceFilter === 'high-to-low' ? 'High to Low' : 'Discounted'}
+                Price: {priceFilter === 'low-to-high' ? 'Low to High' :
+                  priceFilter === 'high-to-low' ? 'High to Low' : 'Discounted'}
                 <button onClick={() => setPriceFilter('')} className="text-gray-500 hover:text-gray-700">
                   <FaTimes size={12} />
                 </button>
@@ -238,7 +248,7 @@ const CategoryProduct = () => {
                 </button>
               </span>
             )}
-            <button 
+            <button
               onClick={resetFilters}
               className="ml-auto text-blue-600 text-sm font-medium hover:underline flex items-center gap-1"
             >
@@ -258,14 +268,14 @@ const CategoryProduct = () => {
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 className="fixed inset-0 z-50 md:hidden"
               >
-                <div 
+                <div
                   className="absolute inset-0 bg-black bg-opacity-50"
                   onClick={() => setMobileFiltersOpen(false)}
                 />
                 <div className="absolute inset-y-0 left-0 w-4/5 max-w-sm bg-white shadow-xl overflow-y-auto p-6">
                   <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-bold">Filters</h2>
-                    <button 
+                    <button
                       onClick={() => setMobileFiltersOpen(false)}
                       className="text-gray-500 hover:text-gray-700"
                     >
@@ -276,7 +286,7 @@ const CategoryProduct = () => {
                   {/* Subcategories */}
                   {subcategories.length > 0 && (
                     <div className="mb-6 border-b pb-4">
-                      <button 
+                      <button
                         className="flex justify-between items-center w-full font-medium mb-3"
                         onClick={() => toggleSection('subcategories')}
                       >
@@ -311,7 +321,7 @@ const CategoryProduct = () => {
 
                   {/* Price Filter */}
                   <div className="mb-6 border-b pb-4">
-                    <button 
+                    <button
                       className="flex justify-between items-center w-full font-medium mb-3"
                       onClick={() => toggleSection('price')}
                     >
@@ -370,7 +380,7 @@ const CategoryProduct = () => {
                   {/* Brand Filter */}
                   {brands.length > 0 && (
                     <div className="mb-6">
-                      <button 
+                      <button
                         className="flex justify-between items-center w-full font-medium mb-3"
                         onClick={() => toggleSection('brands')}
                       >
@@ -427,7 +437,7 @@ const CategoryProduct = () => {
             <div className="bg-white p-6 rounded-lg shadow-md sticky top-4">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="font-bold text-lg">Filters</h2>
-                <button 
+                <button
                   onClick={resetFilters}
                   className="text-blue-600 text-sm hover:underline flex items-center gap-1"
                 >
@@ -463,7 +473,7 @@ const CategoryProduct = () => {
               {/* Subcategories */}
               {subcategories.length > 0 && (
                 <div className="mb-6 border-b pb-4">
-                  <button 
+                  <button
                     className="flex justify-between items-center w-full font-medium mb-3"
                     onClick={() => toggleSection('subcategories')}
                   >
@@ -498,7 +508,7 @@ const CategoryProduct = () => {
 
               {/* Price Filter */}
               <div className="mb-6 border-b pb-4">
-                <button 
+                <button
                   className="flex justify-between items-center w-full font-medium mb-3"
                   onClick={() => toggleSection('price')}
                 >
@@ -557,7 +567,7 @@ const CategoryProduct = () => {
               {/* Brand Filter */}
               {brands.length > 0 && (
                 <div className="mb-6">
-                  <button 
+                  <button
                     className="flex justify-between items-center w-full font-medium mb-3"
                     onClick={() => toggleSection('brands')}
                   >
@@ -605,34 +615,59 @@ const CategoryProduct = () => {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
-                      whileHover={{ 
+                      whileHover={{
                         y: -5,
                         boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
                       }}
                       layout
                     >
-                         <div className="flex justify-between items-start mb-2">
-                          <h2 
-                            className="text-lg font-semibold line-clamp-1 hover:text-blue-600 cursor-pointer transition-colors"
-                            onClick={() => handleClick(product._id)}
-                            title={product.name}
-                          >
-                            {product.name} {product.colors ? `(${product.colors})` : ''}
-                          </h2>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              console.log('Toggle favorite for', product.id);
-                            }}
-                            className="text-gray-400 hover:text-red-500 transition-colors"
-                            aria-label="Toggle favorite"
-                          >
+                      <div className="flex justify-between items-start mb-2">
+                        <h2
+                          className="text-lg font-semibold line-clamp-1 hover:text-blue-600 cursor-pointer transition-colors"
+                          onClick={() => handleClick(product._id)}
+                          title={product.name}
+                        >
+                          {product.name} {product.colors ? `(${product.colors})` : ''}
+                        </h2>
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            const token = localStorage.getItem('token');
+                            if (!token) {
+                              navigate('/login', { state: { from: `/category/${category}` } });
+                              return;
+                            }
+
+                            try {
+                              if (isInWishlist(product._id)) {
+                                // Find the wishlist item ID to remove
+                                const wishlistItem = wishlistItems.find(item => item.product._id === product._id);
+                                if (wishlistItem) {
+                                  await removeFromWishlist(wishlistItem._id);
+                                  toast.success('Removed from wishlist');
+                                }
+                              } else {
+                                await addToWishlist(product._id);
+                                toast.success('Added to wishlist');
+                              }
+                              fetchWishlistCount();
+                            } catch (error) {
+                              toast.error('Failed to update wishlist');
+                            }
+                          }}
+                          className={`transition-colors ${isInWishlist(product._id) ? 'text-red-500' : 'text-gray-400 hover:text-red-500'}`}
+                          aria-label={isInWishlist(product._id) ? "Remove from favorites" : "Add to favorites"}
+                        >
+                          {isInWishlist(product._id) ? (
+                            <FaHeart className="group-hover:scale-110 transition-transform" />
+                          ) : (
                             <FaRegHeart className="group-hover:scale-110 transition-transform" />
-                          </button>
-                        </div>
+                          )}
+                        </button>
+                      </div>
 
                       {/* Product Image */}
-                      <div 
+                      <div
                         className="relative h-48 w-full bg-gray-100 rounded-md overflow-hidden cursor-pointer"
                         onClick={() => handleClick(product._id)}
                       >
@@ -708,14 +743,14 @@ const CategoryProduct = () => {
                             <FaShoppingCart className="text-xs" />
                             Add to Cart
                           </motion.button> */}
-                            {/* Rating */}
-                        <div className="flex items-center mb-2">
-                          <div className="flex items-center bg-blue-50 px-2 py-1 rounded">
-                            <span className="text-yellow-500 mr-1">{product.rating || 4.2}</span>
-                            <FaStar className="text-yellow-500 text-xs" />
+                          {/* Rating */}
+                          <div className="flex items-center mb-2">
+                            <div className="flex items-center bg-blue-50 px-2 py-1 rounded">
+                              <span className="text-yellow-500 mr-1">{product.rating || 4.2}</span>
+                              <FaStar className="text-yellow-500 text-xs" />
+                            </div>
+                            <span className="text-gray-500 text-sm ml-2">({product.reviews || 124} reviews)</span>
                           </div>
-                          <span className="text-gray-500 text-sm ml-2">({product.reviews || 124} reviews)</span>
-                        </div>
                         </div>
                       </div>
                     </motion.div>
@@ -740,7 +775,7 @@ const CategoryProduct = () => {
                 <p className="text-gray-500 text-center max-w-md">
                   We couldn't find any products matching your filters. Try adjusting your filters or browse our other categories.
                 </p>
-                <button 
+                <button
                   onClick={resetFilters}
                   className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
                 >

@@ -61,13 +61,13 @@ const ProductCard = ({ product }) => {
             <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
               Assured
             </span>
-            <button 
+            {/* <button 
               onClick={toggleFavorite}
               className="text-gray-400 hover:text-red-500 transition-colors"
               aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
             >
               {isFavorite ? <FaHeart className="text-red-500" /> : <FaRegHeart />}
-            </button>
+            </button> */}
           </div>
         </div>
         

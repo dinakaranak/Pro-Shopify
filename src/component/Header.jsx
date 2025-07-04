@@ -6,26 +6,28 @@ import Button from '@mui/material/Button';
 import Badge from '@mui/material/Badge';
 import { styled } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
-import { MdOutlineShoppingCart, MdMenu, MdClose, MdAccountCircle } from "react-icons/md";
+import { MdOutlineShoppingCart, MdMenu, MdClose, MdAccountCircle, MdDeleteForever, MdHelpCenter } from "react-icons/md";
 import { IoGitCompareOutline } from "react-icons/io5";
 import { FaRegHeart, FaUser, FaSignOutAlt, FaShoppingBag, FaHeart } from "react-icons/fa";
 import Tooltip from '@mui/material/Tooltip';
 import { useCart } from '../context/CartContext';
-import { 
-  useMediaQuery, 
-  Box, 
-  Drawer, 
-  List, 
-  ListItem, 
-  Divider, 
-  Avatar, 
-  Menu, 
-  MenuItem, 
+import {
+  useMediaQuery,
+  Box,
+  Drawer,
+  List,
+  ListItem,
+  Divider,
+  Avatar,
+  Menu,
+  MenuItem,
   Typography,
   ListItemIcon,
   Chip
 } from '@mui/material';
+import { useSnackbar } from 'notistack';
 import Api from '../Services/Api';
+import { useWishlist } from '../context/WishlistContext';
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
@@ -47,8 +49,11 @@ const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const { cartCount, cartError, fetchCartCount } = useCart();
+  const { enqueueSnackbar } = useSnackbar();
   const open = Boolean(anchorEl);
+  const { wishlistCount } = useWishlist();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -73,7 +78,7 @@ const Header = () => {
   };
 
   const handleLoginClick = () => navigate('/login');
-  
+
   const handleLogout = async () => {
     try {
       await Api.put('/users/logout', {}, {
@@ -88,6 +93,27 @@ const Header = () => {
       navigate('/');
     } catch (error) {
       console.error('Logout error:', error);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      await Api.delete('/users/delete-account', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      localStorage.removeItem('token');
+      setIsLoggedIn(false);
+      setUser(null);
+      setDeleteConfirmOpen(false);
+      handleClose();
+      enqueueSnackbar('Account deleted successfully', { variant: 'success' });
+      navigate('/');
+    } catch (error) {
+      console.error('Delete account error:', error);
+      enqueueSnackbar('Failed to delete account', { variant: 'error' });
     }
   };
 
@@ -113,21 +139,21 @@ const Header = () => {
           <MdClose className="text-gray-600" />
         </IconButton>
       </div>
-      
+
       <Divider />
-      
+
       <List sx={{ flexGrow: 1 }}>
         <ListItem>
           <Search fullWidth />
         </ListItem>
-        
+
         {isLoggedIn ? (
           <>
             <ListItem>
-              <Button 
-                fullWidth 
-                variant="contained" 
-                color="error" 
+              <Button
+                fullWidth
+                variant="contained"
+                color="error"
                 onClick={handleLogout}
                 startIcon={<FaSignOutAlt />}
               >
@@ -152,10 +178,10 @@ const Header = () => {
           </>
         ) : (
           <ListItem>
-            <Button 
-              fullWidth 
-              variant="contained" 
-              color="error" 
+            <Button
+              fullWidth
+              variant="contained"
+              color="error"
               onClick={() => {
                 handleDrawerToggle();
                 handleLoginClick();
@@ -166,7 +192,7 @@ const Header = () => {
             </Button>
           </ListItem>
         )}
-        
+
         <ListItem>
           <Link to="/help-center" className="w-full" onClick={handleDrawerToggle}>
             <Button fullWidth>Help Center</Button>
@@ -178,9 +204,9 @@ const Header = () => {
           </Link>
         </ListItem>
       </List>
-      
+
       <Divider />
-      
+
       <div className="flex justify-around p-4 bg-gray-50">
         <Tooltip title="Compare">
           <IconButton component={Link} to="/compare" onClick={handleDrawerToggle}>
@@ -189,7 +215,7 @@ const Header = () => {
             </StyledBadge>
           </IconButton>
         </Tooltip>
-        
+
         <Tooltip title="Wishlist">
           <IconButton component={Link} to="/wishlist" onClick={handleDrawerToggle}>
             <StyledBadge badgeContent={4} color="error">
@@ -197,7 +223,7 @@ const Header = () => {
             </StyledBadge>
           </IconButton>
         </Tooltip>
-        
+
         <Tooltip title="Cart">
           <IconButton component={Link} to="/addtocart" onClick={handleDrawerToggle}>
             <StyledBadge badgeContent={cartCount} color="error">
@@ -210,7 +236,7 @@ const Header = () => {
   );
 
   return (
-    <header className='bg-white shadow-sm '>
+    <header className='bg-white shadow-sm'>
       {/* Top Strip */}
       <div className='top-strip py-2 border-b border-gray-200 bg-gray-50 hidden md:block'>
         <div className='container mx-auto px-4'>
@@ -246,10 +272,10 @@ const Header = () => {
             {/* Logo */}
             <div className='flex-1 md:flex-none md:w-1/4 flex justify-center md:justify-start'>
               <Link to='/'>
-                <img 
-                  src={logo} 
-                  alt="Logo" 
-                  className='h-12 md:h-20 w-auto transition-transform hover:scale-105' 
+                <img
+                  src={logo}
+                  alt="Logo"
+                  className='h-12 md:h-20 w-auto transition-transform hover:scale-105'
                 />
               </Link>
             </div>
@@ -276,10 +302,10 @@ const Header = () => {
                           }
                         }}
                         startIcon={
-                          <Avatar 
-                            sx={{ 
-                              width: 30, 
-                              height: 30, 
+                          <Avatar
+                            sx={{
+                              width: 30,
+                              height: 30,
                               bgcolor: '#d10024',
                               fontSize: '0.875rem',
                               fontWeight: 'bold'
@@ -289,15 +315,15 @@ const Header = () => {
                           </Avatar>
                         }
                         endIcon={
-                          <svg 
-                            xmlns="http://www.w3.org/2000/svg" 
-                            width="16" 
-                            height="16" 
-                            viewBox="0 0 24 24" 
-                            fill="none" 
-                            stroke="currentColor" 
-                            strokeWidth="2" 
-                            strokeLinecap="round" 
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
                             strokeLinejoin="round"
                           >
                             <polyline points="6 9 12 15 18 9"></polyline>
@@ -340,10 +366,10 @@ const Header = () => {
                         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                       >
-                        <MenuItem 
-                          onClick={() => { 
-                            navigate('/profile'); 
-                            handleClose(); 
+                        <MenuItem
+                          onClick={() => {
+                            navigate('/profile');
+                            handleClose();
                           }}
                           sx={{ py: 1.5 }}
                         >
@@ -352,10 +378,10 @@ const Header = () => {
                           </ListItemIcon>
                           <Typography variant="body2">My Profile</Typography>
                         </MenuItem>
-                        <MenuItem 
-                          onClick={() => { 
-                            navigate('/orders'); 
-                            handleClose(); 
+                        <MenuItem
+                          onClick={() => {
+                            navigate('/orders');
+                            handleClose();
                           }}
                           sx={{ py: 1.5 }}
                         >
@@ -364,10 +390,10 @@ const Header = () => {
                           </ListItemIcon>
                           <Typography variant="body2">Orders</Typography>
                         </MenuItem>
-                        <MenuItem 
-                          onClick={() => { 
-                            navigate('/wishlist'); 
-                            handleClose(); 
+                        <MenuItem
+                          onClick={() => {
+                            navigate('/wishlist');
+                            handleClose();
                           }}
                           sx={{ py: 1.5 }}
                         >
@@ -376,22 +402,98 @@ const Header = () => {
                           </ListItemIcon>
                           <Typography variant="body2">Wishlist</Typography>
                         </MenuItem>
+                        <MenuItem
+                          onClick={() => {
+                            navigate('/orders');
+                            handleClose();
+                          }}
+                          sx={{ py: 1.5 }}
+                        >
+                          <ListItemIcon>
+                            <FaHeart fontSize="small" />
+                          </ListItemIcon>
+                          <Typography variant="body2">Tracking Order</Typography>
+                        </MenuItem>
+                        <MenuItem
+                          onClick={() => {
+                            navigate('/help-center');
+                            handleClose();
+                          }}
+                          sx={{ py: 1.5 }}
+                        >
+                          <ListItemIcon>
+                            <MdHelpCenter fontSize="small" />
+                          </ListItemIcon>
+                          <Typography variant="body2">Help Center</Typography>
+                        </MenuItem>
+                        <MenuItem
+                          onClick={() => setDeleteConfirmOpen(true)}
+                          sx={{ py: 1.5 }}
+                        >
+                          <ListItemIcon>
+                            <MdDeleteForever fontSize="16px" color="error" />
+                          </ListItemIcon>
+                          <Typography variant="body2" color="error">Delete Account</Typography>
+                        </MenuItem>
                         <Divider sx={{ my: 0.5 }} />
-                        <MenuItem 
+                        <MenuItem
                           onClick={handleLogout}
                           sx={{ py: 1.5 }}
                         >
                           <ListItemIcon>
-                            <FaSignOutAlt fontSize="small" color="error" />
+                            <FaSignOutAlt fontSize="small" />
                           </ListItemIcon>
-                          <Typography variant="body2" color="error">Logout</Typography>
+                          <Typography variant="body2" color='error'>Logout</Typography>
                         </MenuItem>
+                      </Menu>
+                      <Menu
+                        anchorEl={anchorEl}
+                        open={deleteConfirmOpen}
+                        onClose={() => setDeleteConfirmOpen(false)}
+                        anchorOrigin={{
+                          vertical: 'center',
+                          horizontal: 'center',
+                        }}
+                        transformOrigin={{
+                          vertical: 'center',
+                          horizontal: 'center',
+                        }}
+                        PaperProps={{
+                          style: {
+                            padding: '20px',
+                            maxWidth: '300px',
+                          },
+                        }}
+                      >
+                        <Typography variant="body1" sx={{ mb: 2, fontWeight: 'bold' }}>
+                          Are you sure you want to delete your account?
+                        </Typography>
+                        <Typography variant="body2" sx={{ mb: 2 }}>
+                          This action cannot be undone. All your data will be permanently removed.
+                        </Typography>
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                          <Button
+                            variant="outlined"
+                            onClick={() => setDeleteConfirmOpen(false)}
+                            size="small"
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            variant="contained"
+                            color="error"
+                            onClick={handleDeleteAccount}
+                            size="small"
+                          >
+                            Delete
+                          </Button>
+                        </Box>
                       </Menu>
                     </div>
                   ) : (
-                    <Button 
-                      variant="contained" 
-                      color="error" 
+                    <Button
+                      variant="contained"
+                      color="error"
                       onClick={handleLoginClick}
                       size="small"
                       className='hidden md:block'
@@ -408,35 +510,23 @@ const Header = () => {
                   )}
                 </>
               )}
-              
-              {/* <Tooltip title="Compare" placement="bottom" arrow>
-                <IconButton 
-                  size="medium"
-                  component={Link}
-                  to="/compare"
-                  className="text-gray-700 hover:text-[#d10024]"
-                >
-                  <StyledBadge badgeContent={4} color="error">
-                    <IoGitCompareOutline className="text-[22px]" />
-                  </StyledBadge>
-                </IconButton>
-              </Tooltip> */}
-              
+
               <Tooltip title="Wishlist" placement="bottom" arrow>
-                <IconButton 
+                <IconButton
                   size="medium"
-                  component={Link}
+                  component={Link} // Correctly uses react-router-dom's Link component
                   to="/wishlist"
                   className="text-gray-700 hover:text-[#d10024]"
                 >
-                  <StyledBadge badgeContent={4} color="error">
-                    <FaRegHeart className="text-[20px]" />
+                  {/* StyledBadge is assumed to be a custom component for displaying the count */}
+                  <StyledBadge badgeContent={wishlistCount} color="error">
+                    <FaRegHeart className="text-[20px]" /> 
                   </StyledBadge>
                 </IconButton>
               </Tooltip>
-              
+
               <Tooltip title="Cart" placement="bottom" arrow>
-                <IconButton 
+                <IconButton
                   size="medium"
                   component={Link}
                   to="/addtocart"
@@ -468,8 +558,8 @@ const Header = () => {
           keepMounted: true,
         }}
         sx={{
-          '& .MuiDrawer-paper': { 
-            boxSizing: 'border-box', 
+          '& .MuiDrawer-paper': {
+            boxSizing: 'border-box',
             width: 280,
           },
         }}

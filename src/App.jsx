@@ -17,7 +17,8 @@ import { ToastContainer } from 'react-toastify'
 import ProfilePage from './component/Profile/ProfilePage'
 import OrdersPage from './component/Profile/OrderPage'
 import OrderDetails from './component/Profile/OrderDetails'
-import WishlistPage from './component/Profile/WishlistPage'
+import HelpCenter from './component/Profile/HelpCenter'
+import Wishlist from './component/Profile/Wishlist'
 
 function App() {
 const [isAuthenticated, setIsAuthenticated]=useState()
@@ -47,18 +48,19 @@ const [isAuthenticated, setIsAuthenticated]=useState()
         <Route path='/profile' element={<ProfilePage />}></Route>
         <Route path='/orders' element={<OrdersPage />}></Route>
         <Route path='/orders/:id' element={<OrderDetails />}></Route>
-        <Route path='/wishlist' element={<WishlistPage />}></Route>
+        <Route path='/help-center' element={<HelpCenter />}></Route>
+        <Route path='/wishlist' element={<Wishlist />}></Route>
 
       </Routes>
       <ToastContainer 
-        position="top-right" 
+        position="bottom-center" 
         autoClose={3000} 
         hideProgressBar={false} 
         newestOnTop={false} 
         closeOnClick 
         pauseOnHover 
         draggable 
-        theme="light" 
+        theme="dark" 
       />
       </BrowserRouter>
     </>

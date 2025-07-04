@@ -24,6 +24,9 @@ import {
   CheckCircle as CheckCircleIcon
 } from '@mui/icons-material';
 import Api from '../../Services/Api';
+import Header from '../Header';
+import Footer from '../Footer';
+import Navigation from '../Navigation';
 
 const ProfilePage = () => {
     const [user, setUser] = useState(null);
@@ -136,6 +139,9 @@ const ProfilePage = () => {
     }
 
     return (
+        <>
+        <Header />
+        <Navigation />
         <Box sx={{ 
             p: { xs: 2, md: 3 }, 
             maxWidth: 800, 
@@ -400,6 +406,8 @@ const ProfilePage = () => {
                 </Alert>
             </Snackbar>
         </Box>
+        <Footer />
+        </>
     );
 };
 
