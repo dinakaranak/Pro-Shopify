@@ -52,20 +52,51 @@ const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [mobileAnchorEl, setMobileAnchorEl] = useState(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const { cartCount, cartError, fetchCartCount } = useCart();
+  const { cartCount, cartError, fetchCartCount, resetCart } = useCart();
   const { enqueueSnackbar } = useSnackbar();
   const open = Boolean(anchorEl);
   const mobileOpenMenu = Boolean(mobileAnchorEl);
   const { wishlistCount } = useWishlist();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    setIsLoggedIn(!!token);
-    if (token) {
-      fetchUserData();
-    }
+    const checkAuthState = () => {
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('user');
+
+      if (token) {
+        // Check token expiration
+        const expiry = localStorage.getItem('token_expiry');
+        if (expiry && Date.now() > parseInt(expiry)) {
+          // Token expired
+          handleLogout();
+          return;
+        }
+
+        setIsLoggedIn(true);
+        if (userData) {
+          setUser(JSON.parse(userData));
+        } else {
+          // Fetch user data if not in localStorage
+          fetchUserData();
+        }
+      } else {
+        setIsLoggedIn(false);
+        setUser(null);
+      }
+    };
+
+    checkAuthState();
     fetchCartCount();
+
+    // Listen for storage events (login/logout from other tabs)
+    const handleStorageChange = () => {
+      checkAuthState();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, [fetchCartCount]);
+
 
   const fetchUserData = async () => {
     try {
@@ -74,9 +105,12 @@ const Header = () => {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
-      setUser(response.data.data);
+      const userData = response.data.data;
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
     } catch (error) {
       console.error('Error fetching user data:', error);
+      handleLogout(); // Logout if token is invalid
     }
   };
 
@@ -89,14 +123,23 @@ const Header = () => {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      // Clear all auth-related data
       localStorage.removeItem('token');
+      localStorage.removeItem('token_expiry');
+      localStorage.removeItem('user');
+
       setIsLoggedIn(false);
       setUser(null);
       handleClose();
       handleMobileMenuClose();
+
+      // Dispatch storage event to notify other tabs
+      window.dispatchEvent(new Event('storage'));
+
       navigate('/');
-    } catch (error) {
-      console.error('Logout error:', error);
     }
   };
 
@@ -409,9 +452,13 @@ const Header = () => {
                   to="/addtocart"
                   className="text-gray-700 hover:text-[#d10024]"
                 >
-                  <StyledBadge badgeContent={cartCount} color="error">
+                  {cartCount > 0 ? (
+                    <StyledBadge badgeContent={cartCount} color="error">
+                      <MdOutlineShoppingCart className="text-[22px]" />
+                    </StyledBadge>
+                  ) : (
                     <MdOutlineShoppingCart className="text-[22px]" />
-                  </StyledBadge>
+                  )}
                 </IconButton>
               </Tooltip>
             </div>
@@ -711,5 +758,4 @@ const Header = () => {
     </header>
   );
 };
-
 export default Header;

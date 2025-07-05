@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate , useLocation} from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import Api from '../../Services/Api';
 
 const Login = ({ setIsAuthenticated }) => {
@@ -27,19 +27,19 @@ const Login = ({ setIsAuthenticated }) => {
         }
     };
     const handleLoginSuccess = () => {
-    // After successful login
-    const from = location.state?.from?.pathname || '/';
-    navigate(from);
-  };
+        // After successful login
+        const from = location.state?.from?.pathname || '/';
+        navigate(from);
+    };
 
     const validate = () => {
         const newErrors = {};
         if (!formData.email.trim()) newErrors.email = 'Email is required';
         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Please enter a valid email';
-        
+
         if (!formData.password) newErrors.password = 'Password is required';
         else if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
-        
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -54,17 +54,28 @@ const Login = ({ setIsAuthenticated }) => {
                 email: formData.email,
                 password: formData.password
             });
-             localStorage.setItem('token', response.data.token);
+            localStorage.setItem('token', response.data.token);
+            const expiry = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+            console.log("Setting expiry to:", new Date(expiry).toLocaleString());
+            localStorage.setItem('token_expiry', expiry);
 
-            if (response.data.success) {
-                setIsAuthenticated(true);
-                navigate('/');
+             if (response.data.user) {
+                localStorage.setItem('user', JSON.stringify(response.data.user));
             }
+        setIsAuthenticated(true);
+            
+            // Dispatch storage event to notify other tabs
+            window.dispatchEvent(new Event('storage'));
+            
+            // Redirect to intended page or home
+            const from = location.state?.from?.pathname || '/';
+            navigate(from, { replace: true });
+            
         } catch (error) {
             console.error('Login error:', error.response?.data?.message || error.message);
-            setErrors({ 
+            setErrors({
                 ...errors,
-                submit: error.response?.data?.message || 'Login failed. Please check your credentials and try again.' 
+                submit: error.response?.data?.message || 'Login failed. Please check your credentials and try again.'
             });
         } finally {
             setIsLoading(false);
@@ -83,14 +94,14 @@ const Login = ({ setIsAuthenticated }) => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
-                
+
                 <div className="p-8">
                     <div className="text-center">
                         <h2 className="text-3xl font-bold text-gray-900">Welcome back</h2>
                         <p className="mt-2 text-sm text-gray-600">
                             Don't have an account?{' '}
-                            <Link 
-                                to="/signup" 
+                            <Link
+                                to="/signup"
                                 className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors duration-200"
                             >
                                 Sign up

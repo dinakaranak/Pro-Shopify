@@ -5,12 +5,14 @@ import Api from '../../Services/Api';
 import { FiShoppingBag, FiTrash2, FiPlus, FiMinus } from 'react-icons/fi';
 import { MdOutlineRemoveShoppingCart } from 'react-icons/md';
 import { motion } from 'framer-motion';
+import { useCart } from '../../context/CartContext';
 
 const CartPage = () => {
   const [cart, setCart] = useState({ items: [] });
   const [loading, setLoading] = useState(true);
   const [updatingItems, setUpdatingItems] = useState({});
   const navigate = useNavigate();
+  const { refreshCart } = useCart();
 
   const fetchCart = async () => {
     try {
@@ -87,6 +89,7 @@ const CartPage = () => {
         console.log('Updated items after deletion:', updatedItems);
         return { ...prevCart, items: updatedItems };
       });
+      await refreshCart();
 
       toast.success('Item removed from cart');
     } catch (error) {
@@ -109,6 +112,7 @@ const CartPage = () => {
       });
       // Clear the cart in state immediately
       setCart({ items: [] });
+      await refreshCart();
       toast.success('Cart cleared');
     } catch (error) {
       console.error('Error clearing cart:', error);
