@@ -88,17 +88,20 @@ const Banner = () => {
      <div className="relative w-full h-full overflow-hidden rounded-lg shadow-lg bg-gray-100">
       {/* Banner Image - Responsive with different sizes */}
       <div className="relative w-full  aspect-[16/9] md:aspect-[21/9] lg:aspect-[24/9]">
+       <Link 
+                to={currentBanner.link}>
         <img 
           src={currentBanner.imageUrl} 
           alt={currentBanner.title} 
           className="w-full h-[500px] object-cover"
           loading="lazy"
         />
+        </Link>
         {/* Gradient Overlay */}
         <div className="absolute inset-75 bg-gradient-to-r from-black/60 to-black/20"></div>
         
         {/* Banner Content */}
-        <div className="absolute inset-0  flex items-center ml-[50%]">
+        {/* <div className="absolute inset-0  flex items-center ml-[50%]">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-lg text-[#171216da] p-4 sm:p-6">
               <h2 className="text-1xl sm:text-1xl md:text-3xl font-bold mb-2 sm:mb-3">
@@ -115,7 +118,7 @@ const Banner = () => {
               </Link>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Navigation Arrows (if multiple banners) */}

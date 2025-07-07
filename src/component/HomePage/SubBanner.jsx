@@ -32,12 +32,14 @@ const SubBanner = () => {
   return (
     <div className="container mx-auto px-4 py-4">
       
-      <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 gap-4">
         {products.map((product, index) => (
           <div key={index} className="group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
             {/* Product Image Container - Relative for absolute positioning of info */}
             <div className="relative h-55 bg-gray-100 overflow-hidden">
               {product.imageUrl ? (
+                   <Link 
+                to={product.link}>
                 <img 
                   src={product.imageUrl} 
                   alt={product.name} 
@@ -47,6 +49,7 @@ const SubBanner = () => {
                     e.target.src = "https://via.placeholder.com/300x200?text=No+Image";
                   }}
                 />
+                </Link>
               ) : (
                 <div className="h-full w-full flex items-center justify-center text-gray-500">
                   No Image Available
@@ -54,7 +57,7 @@ const SubBanner = () => {
               )}  
               
               {/* Product Info - Absolute positioned at bottom */}
-            <div className={`absolute bottom-0 ${index % 2 === 0 ? 
+            {/* <div className={`absolute bottom-0 ${index % 2 === 0 ? 
                 'right-2 text-center' : 'left-2 text-center'} p-4 text-purple-700 bottom-5`}>
                 <h2 className="text-xl font-semibold mb-1">{product.title}</h2>
                 <p className="text-[17px] text-black">
@@ -66,12 +69,12 @@ const SubBanner = () => {
                  hover:bg-gray-200 transition-colors duration-300">
                 {product.buttonText}
               </Link>
-              </div>
+              </div> */}
             </div>
           </div>
         ))}
       </div>
-    </div>
+     </div>
   );
 };
 

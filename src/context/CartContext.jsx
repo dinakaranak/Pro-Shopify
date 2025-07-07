@@ -34,8 +34,26 @@ export const CartProvider = ({ children }) => {
     setCartCount(count);
   };
 
+  const resetCart = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    if (token) {
+      await Api.delete('/cart/clear/all', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+    }
+    setCartCount(0);
+  } catch (error) {
+    console.error('Error clearing cart:', error);
+  }
+};
+
+const refreshCart = async () => {
+    await fetchCartCount();
+  };
+
   return (
-    <CartContext.Provider value={{ cartCount, fetchCartCount, updateCartCount }}>
+    <CartContext.Provider value={{ cartCount, fetchCartCount, updateCartCount, resetCart, refreshCart, cartError }}>
       {children}
     </CartContext.Provider>
   );

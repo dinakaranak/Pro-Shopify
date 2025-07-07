@@ -8,11 +8,9 @@ import {
 } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Rating } from 'react-simple-star-rating';
-import Footer from '../Footer';
-import Header from '../Header';
-import Navigation from '../Navigation';
 import { toast } from 'react-toastify';
 import { useCart } from '../../context/CartContext';
+import { useWishlist } from '../../context/WishlistContext';
 
 const ProductPage = () => {
   const { id } = useParams();
@@ -28,6 +26,13 @@ const ProductPage = () => {
   const [similarLoading, setSimilarLoading] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const { fetchCartCount } = useCart();
+  const {
+  wishlistCount,
+  addToWishlist,
+  removeFromWishlist,
+  isInWishlist,
+  fetchWishlistCount
+} = useWishlist();
 
   const handleAddToCart = async () => {
     try {
@@ -136,7 +141,36 @@ const ProductPage = () => {
     fetchProduct();
   }, [id]);
 
-  const toggleFavorite = () => setIsFavorite(!isFavorite);
+  useEffect(() => {
+  if (id) {
+    setIsFavorite(isInWishlist(id));
+  }
+}, [id, isInWishlist]);
+
+const toggleFavorite = async () => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    navigate('/login', { state: { from: `/productpage/${id}` } });
+    return;
+  }
+
+  try {
+    if (isFavorite) {
+      // Find the wishlist item ID to remove
+      const itemToRemove = wishlistItems.find(item => item.product._id === id);
+      if (itemToRemove) {
+        await removeFromWishlist(itemToRemove._id);
+      }
+    } else {
+      await addToWishlist(id);
+    }
+    setIsFavorite(!isFavorite);
+    fetchWishlistCount();
+  } catch (error) {
+    console.error('Error toggling wishlist:', error);
+    toast.error('Failed to update wishlist');
+  }
+};
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % product.images.length);
@@ -182,8 +216,6 @@ const ProductPage = () => {
 
   return (
     <>
-      <Header />
-      <Navigation />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumbs */}
@@ -687,8 +719,6 @@ const ProductPage = () => {
           )}
         </div>
       </div>
-
-      <Footer />
     </>
   );
 };

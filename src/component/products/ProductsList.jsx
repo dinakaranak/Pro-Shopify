@@ -61,13 +61,13 @@ const ProductCard = ({ product }) => {
             <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
               Assured
             </span>
-            <button 
+            {/* <button 
               onClick={toggleFavorite}
               className="text-gray-400 hover:text-red-500 transition-colors"
               aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
             >
               {isFavorite ? <FaHeart className="text-red-500" /> : <FaRegHeart />}
-            </button>
+            </button> */}
           </div>
         </div>
         
@@ -332,7 +332,7 @@ const ProductList = () => {
       
       {filteredProducts().length > 0 && (
         <div className="mt-8 flex justify-center">
-          <button className="border border-purple-500 text-purple-500 px-4 py-2 rounded-md hover:bg-blue-50 transition-colors">
+          <button className="border border-[#d10024] text-[#d10024] px-4 py-2 rounded-md hover:bg-red-50 transition-colors">
             Load More Products
           </button>
         </div>
