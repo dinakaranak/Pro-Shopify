@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Api from '../../Services/Api';
 import { motion } from 'framer-motion';
+import { signInWithPopup } from "firebase/auth";
+import { auth, googleProvider } from '../firebase';
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -96,6 +98,34 @@ const SignUp = () => {
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
+
+  const handleGoogleSignUp = async () => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+
+      // Send Firebase user data to your backend
+      const response = await Api.post('/auth/google', {
+        uid: user.uid,
+        email: user.email,
+        name: user.displayName,
+        photoURL: user.photoURL
+      });
+
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('userInfo', JSON.stringify(response.data.user));
+
+      navigate(location.state?.from || '/', { replace: true });
+    } catch (err) {
+      setError(err.message || 'Google signup failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   return (
     <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -327,6 +357,18 @@ const SignUp = () => {
                 </>
               )}
             </form>
+            <div className='mt-4'>
+            <button
+              type="button"
+              onClick={handleGoogleSignUp}
+              className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+            >
+              <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12.545 10.239v3.821h5.445c-0.712 2.315-2.647 3.972-5.445 3.972-3.332 0-6.033-2.701-6.033-6.032s2.701-6.032 6.033-6.032c1.498 0 2.866 0.549 3.921 1.453l2.814-2.814c-1.786-1.667-4.141-2.676-6.735-2.676-5.522 0-10 4.477-10 10s4.478 10 10 10c8.396 0 10-7.524 10-10 0-0.67-0.069-1.325-0.189-1.961h-9.811z" />
+              </svg>
+              Sign up with Google
+            </button>
+            </div>
 
             <div className="mt-6">
               <div className="relative">
