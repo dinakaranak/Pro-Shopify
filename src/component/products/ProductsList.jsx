@@ -61,13 +61,6 @@ const ProductCard = ({ product }) => {
             <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
               Assured
             </span>
-            {/* <button 
-              onClick={toggleFavorite}
-              className="text-gray-400 hover:text-red-500 transition-colors"
-              aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
-            >
-              {isFavorite ? <FaHeart className="text-red-500" /> : <FaRegHeart />}
-            </button> */}
           </div>
         </div>
         
@@ -164,24 +157,6 @@ const ProductCard = ({ product }) => {
 
       {/* Bottom Buttons - Fixed at bottom */}
       <div className="mt-auto pt-4 flex justify-between border-t border-gray-100">
-        {/* <button 
-          className="text-[12px] text-blue-600 font-medium hover:underline"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleClick();
-          }}
-        >
-          View Details
-        </button>
-        <motion.button 
-          className="flex items-center gap-1 bg-[#d10024] text-white px-3 py-1 rounded text-sm hover:bg-purple-700 transition-colors"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={handleAddToCart}
-        >
-          <FaShoppingCart className="text-[20px]" />
-        </motion.button> */}
-          {/* Rating */}
         <div className="flex items-center mt-2">
           <div className="flex items-center bg-blue-50 px-2 py-1 rounded">
             <span className="text-yellow-500 mr-1">{product.rating || 4.2}</span>
@@ -200,6 +175,8 @@ const ProductList = () => {
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('all');
   const [sortBy, setSortBy] = useState('featured');
+  const [visibleCount, setVisibleCount] = useState(5); // Initial count per category
+  const [loadMoreCount, setLoadMoreCount] = useState(10); // Count to load more
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -227,6 +204,18 @@ const ProductList = () => {
     fetchProducts();
   }, []);
 
+  // Group products by category
+  const groupProductsByCategory = () => {
+    const grouped = {};
+    products.forEach(product => {
+      if (!grouped[product.category]) {
+        grouped[product.category] = [];
+      }
+      grouped[product.category].push(product);
+    });
+    return grouped;
+  };
+
   const filteredProducts = () => {
     let result = [...products];
     
@@ -234,7 +223,8 @@ const ProductList = () => {
     if (filter === 'discount') {
       result = result.filter(p => p.discountPercent > 20);
     } else if (filter === 'new') {
-      result = result.slice(0, 5); // Just an example
+      // Get the newest products (assuming there's a createdAt field)
+      result = result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
     
     // Apply sorting
@@ -247,6 +237,25 @@ const ProductList = () => {
     }
     
     return result;
+  };
+
+  const getVisibleProducts = () => {
+    const grouped = groupProductsByCategory();
+    let visibleProducts = [];
+    
+    // For each category, take only the first 'visibleCount' products
+    Object.keys(grouped).forEach(category => {
+      visibleProducts = [
+        ...visibleProducts,
+        ...grouped[category].slice(0, visibleCount)
+      ];
+    });
+    
+    return visibleProducts;
+  };
+
+  const handleLoadMore = () => {
+    setVisibleCount(prev => prev + loadMoreCount);
   };
 
   if (loading) {
@@ -323,16 +332,30 @@ const ProductList = () => {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-          {filteredProducts().map((product) => (
-            <ProductCard key={product.id} product={product} />
+        <>
+          {/* Display products grouped by category */}
+          {Object.entries(groupProductsByCategory()).map(([category, categoryProducts]) => (
+            <div key={category}>
+              <h2 className="text-xl font-semibold mb-4 mt-8">{category}</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                {categoryProducts
+                  .slice(0, visibleCount) // Only show visibleCount products per category
+                  .map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+              </div>
+            </div>
           ))}
-        </div>
+        </>
       )}
       
-      {filteredProducts().length > 0 && (
+      {/* Show Load More button if there are more products to show */}
+      {products.length > getVisibleProducts().length && (
         <div className="mt-8 flex justify-center">
-          <button className="border border-[#d10024] text-[#d10024] px-4 py-2 rounded-md hover:bg-red-50 transition-colors">
+          <button 
+            onClick={handleLoadMore}
+            className="border border-[#d10024] text-[#d10024] px-4 py-2 rounded-md hover:bg-red-50 transition-colors"
+          >
             Load More Products
           </button>
         </div>

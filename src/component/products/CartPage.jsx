@@ -198,7 +198,7 @@ const CartPage = () => {
             </p>
             <Link
               to="/"
-              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition-colors font-medium inline-flex items-center gap-2"
+              className="bg-[#d10024] hover:bg-[#b10024] text-white px-6 py-3 rounded-lg transition-colors font-medium inline-flex items-center gap-2"
             >
               Start Shopping
             </Link>
