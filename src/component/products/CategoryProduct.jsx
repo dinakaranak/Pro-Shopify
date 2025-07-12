@@ -1,5 +1,5 @@
 import { useContext, useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ProductContext } from '../../context/ProductDetail';
 import { FaSpinner, FaExclamationTriangle, FaFilter, FaChevronDown, FaChevronUp, FaTimes } from 'react-icons/fa';
 import { FaHeart, FaRegHeart, FaStar, FaShoppingCart, FaSearch } from 'react-icons/fa';
@@ -9,6 +9,7 @@ import { toast } from 'react-toastify';
 
 const CategoryProduct = () => {
   const { category } = useParams();
+    const { state } = useLocation();
   const { product, loading, error } = useContext(ProductContext);
   const navigate = useNavigate();
 

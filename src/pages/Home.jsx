@@ -4,6 +4,7 @@ import Features from '../component/HomePage/Features'
 import SubBanner from '../component/HomePage/SubBanner'
 import Division from '../component/HomePage/Division'
 import ProductsList from '../component/products/ProductsList'
+import OfferBanner from '../component/HomePage/OfferBanner'
 
 const Home = () => {
   return (
@@ -25,6 +26,8 @@ const Home = () => {
       </section>
 
       <Division />
+
+      <OfferBanner />
       
       {/* Products Section */}
       <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

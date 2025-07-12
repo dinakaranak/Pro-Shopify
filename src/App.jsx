@@ -22,6 +22,7 @@ import Wishlist from './component/Profile/Wishlist'
 import Header from './component/Header'
 import Navigation from './component/Navigation'
 import Footer from './component/Footer'
+import OfferBanner from './component/HomePage/OfferBanner'
 
 function App() {
 const [isAuthenticated, setIsAuthenticated]=useState()
@@ -33,10 +34,12 @@ const [isAuthenticated, setIsAuthenticated]=useState()
       <Header />
       <Navigation />
       <Routes>
+        {/* home page */}
         <Route path='/' element={<Home />}></Route>
         <Route path='/signup' element={<SignUp setIsAuthenticated={setIsAuthenticated}/>}></Route>
         <Route path='/login' element={<Login setIsAuthenticated={setIsAuthenticated}/>}></Route>
         <Route path='/Features' element={<Features />}></Route>
+        <Route path='/offerbanner' element={<OfferBanner />}></Route>
 
         {/* product */}
         <Route path='/productslist' element={<ProductsList />}></Route>
