@@ -255,7 +255,7 @@ const Header = () => {
           </Link>
         </ListItem>
         <ListItem>
-          <Link to="/order-tracking" className="w-full" onClick={handleDrawerToggle}>
+          <Link to="/orders" className="w-full" onClick={handleDrawerToggle}>
             <Button fullWidth>Order Tracking</Button>
           </Link>
         </ListItem>
@@ -298,7 +298,7 @@ const Header = () => {
               <Link to='/help-center' className='text-xs md:text-sm font-medium text-gray-600 hover:text-[#d10024] transition'>
                 Help Center
               </Link>
-              <Link to='/order-tracking' className='text-xs md:text-sm font-medium text-gray-600 hover:text-[#d10024] transition'>
+              <Link to='/orders' className='text-xs md:text-sm font-medium text-gray-600 hover:text-[#d10024] transition'>
                 Order Tracking
               </Link>
             </div>
